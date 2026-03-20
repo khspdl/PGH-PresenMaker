@@ -40,6 +40,13 @@ description: 순수 HTML, CSS, JavaScript로 웹 프레젠테이션(슬라이드
 
 Google Fonts `<link>` 태그에는 사용하는 폰트만 포함한다. 항상 `Inter`(라틴 텍스트용)와 `JetBrains Mono`(코드용)를 포함하고, 언어에 맞는 Noto Sans 변형을 추가한다.
 
+**중요: Google Fonts를 비렌더블로킹으로 로드한다.** `rel="stylesheet"`만 쓰면 외부 CSS가 렌더를 블로킹하여 처음 열 때 빈 화면이 발생한다. 반드시 `media="print" onload="this.media='all'"` 패턴을 사용하고, `<noscript>` 폴백을 포함한다:
+
+```html
+<link href="https://fonts.googleapis.com/css2?..." rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?..." rel="stylesheet"></noscript>
+```
+
 ## CSS 디자인 시스템
 
 기본 다크 테마의 CSS 변수 (사용자가 다른 색상을 요청하면 `--accent` 등을 변경):
@@ -62,13 +69,14 @@ Google Fonts `<link>` 태그에는 사용하는 폰트만 포함한다. 항상 `
 
 ### 1. 타이틀 (`theme-title`)
 ```html
-<section class="slide theme-title" id="slide-1" role="group" aria-roledescription="슬라이드" aria-label="타이틀">
+<section class="slide theme-title active" id="slide-1" role="group" aria-roledescription="슬라이드" aria-label="타이틀">
   <div class="terminal-badge">주제 키워드</div>
   <h1>제목 <span class="accent">강조어</span></h1>
   <div class="accent-line"></div>
   <p class="subtitle">부제목 텍스트</p>
 </section>
 ```
+**중요: 첫 슬라이드(slide-1)에는 반드시 `active` 클래스를 HTML에 직접 포함한다.** JS 실행 전에도 첫 슬라이드가 즉시 표시되어야 빈 화면 현상이 방지된다. `initFromHash()`가 동기적으로 재설정하므로 동작에 영향 없음.
 h1에 gradient 텍스트 효과 적용 (`background-clip: text`).
 
 ### 2. 콘텐츠 (`theme-content`)

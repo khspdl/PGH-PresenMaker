@@ -6,7 +6,8 @@
 <title>순수 HTML/CSS/JS 슬라이드 프레젠테이션</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=Inter:wght@300;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=Inter:wght@300;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=Inter:wght@300;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"></noscript>
 <style>
 /* === CSS 변수 === */
 :root {
@@ -458,7 +459,7 @@ aside.notes { display: none; }
   <div class="slides-viewport">
 
     <!-- 슬라이드 1: 타이틀 -->
-    <section class="slide theme-title" id="slide-1" role="group" aria-roledescription="슬라이드" aria-label="타이틀">
+    <section class="slide theme-title active" id="slide-1" role="group" aria-roledescription="슬라이드" aria-label="타이틀">
       <div class="terminal-badge">vanilla presentation</div>
       <h1>순수 <span class="accent">바닐라</span> 프레젠테이션</h1>
       <div class="accent-line"></div>
