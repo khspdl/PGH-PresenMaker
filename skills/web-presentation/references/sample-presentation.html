@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>순수 HTML/CSS/JS 슬라이드 프레젠테이션</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=Inter:wght@300;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* === CSS 변수 === */
+:root {
+  --bg:             #000000;
+  --accent:         #38bd84;
+  --accent-dim:     rgba(56, 189, 132, 0.15);
+  --accent-glow:    rgba(56, 189, 132, 0.3);
+  --text-primary:   #e8e8e8;
+  --text-secondary: #888;
+  --text-dim:       #555;
+  --border:         #1a1a1a;
+  --ease-out-expo:  cubic-bezier(0.16, 1, 0.3, 1);
+
+  --font-sans: 'Noto Sans KR', 'Noto Sans JP', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --title-size: clamp(2rem, 5vw, 4rem);
+  --h2-size:    clamp(1.4rem, 3vw, 2.4rem);
+  --body-size:  clamp(0.9rem, 1.4vw, 1.15rem);
+  --small-size: clamp(0.75rem, 1vw, 0.9rem);
+
+  --slide-padding: clamp(2.5rem, 6vw, 6rem);
+  --content-gap:   clamp(1rem, 2vw, 2rem);
+}
+
+/* === 리셋 & 기본 === */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* === 뷰포트 (풀스크린) === */
+.slides-viewport {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* === 개별 슬라이드 === */
+.slide {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--slide-padding);
+  background: var(--bg);
+  overflow: hidden;
+  transform: translate3d(100%, 0, 0);
+  opacity: 0;
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              opacity 0.6s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.slide::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent, transparent 2px,
+    rgba(255,255,255,0.008) 2px,
+    rgba(255,255,255,0.008) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.slide::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(56,189,132,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56,189,132,0.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.slide > * { position: relative; z-index: 2; }
+
+.slide.active {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+.slide.exit-left {
+  transform: translate3d(-100%, 0, 0);
+  opacity: 0;
+  z-index: 1;
+}
+
+/* === 타이포그래피 === */
+.slide h1 {
+  font-size: var(--title-size);
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.slide h2 {
+  font-size: var(--h2-size);
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  margin-bottom: var(--content-gap);
+}
+
+.slide p {
+  font-size: var(--body-size);
+  color: var(--text-secondary);
+  line-height: 1.7;
+  text-align: center;
+}
+
+.slide ul {
+  list-style: none;
+  text-align: left;
+  width: min(80%, 640px);
+}
+
+.slide li {
+  font-size: var(--body-size);
+  line-height: 1.75;
+  padding: 0.35em 0 0.35em 1.6em;
+  position: relative;
+  color: var(--text-primary);
+}
+
+.slide li::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+
+/* === 강조 텍스트 === */
+.accent { color: var(--accent); }
+
+.subtitle {
+  font-size: clamp(0.85rem, 1.2vw, 1.1rem);
+  color: var(--text-secondary);
+  margin-top: 0.5em;
+  text-align: center;
+  font-weight: 300;
+}
+
+/* === accent 구분선 === */
+.accent-line {
+  width: 50px;
+  height: 2px;
+  background: var(--accent);
+  margin: var(--content-gap) auto;
+}
+
+/* === 터미널 배지 === */
+.terminal-badge {
+  font-family: var(--font-mono);
+  font-size: var(--small-size);
+  color: var(--accent);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  margin-bottom: 1em;
+}
+
+.terminal-badge::before {
+  content: '>';
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink { 50% { opacity: 0; } }
+
+/* === 자동 순차 등장 효과 === */
+@keyframes fragmentIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.auto-fragment {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.slide.active .auto-fragment {
+  animation: fragmentIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation-delay: calc(0.3s * var(--i, 0));
+}
+
+/* === 코드 블록 (터미널 스타일) === */
+.terminal-window {
+  background: #0a0a0a;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: min(85%, 680px);
+  overflow: hidden;
+}
+
+.terminal-bar {
+  background: #111;
+  padding: 10px 14px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+.terminal-dot:nth-child(1) { background: #ff5f57; }
+.terminal-dot:nth-child(2) { background: #febc2e; }
+.terminal-dot:nth-child(3) { background: #28c840; }
+
+pre.code-block {
+  counter-reset: line;
+  padding: 1.2em 1.4em;
+  overflow-x: auto;
+  text-align: left;
+}
+
+pre.code-block code {
+  display: block;
+  counter-increment: line;
+  padding: 2px 0 2px 3em;
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: clamp(0.72rem, 1vw, 0.95rem);
+  white-space: pre;
+  color: var(--text-primary);
+  line-height: 1.7;
+}
+
+pre.code-block code::before {
+  content: counter(line);
+  position: absolute;
+  left: 0;
+  width: 2.2em;
+  text-align: right;
+  color: var(--text-dim);
+  border-right: 1px solid var(--border);
+  padding-right: 0.5em;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+pre.code-block code.highlight {
+  background: var(--accent-dim);
+  border-left: 2px solid var(--accent);
+}
+
+.kw  { color: #569cd6; }
+.str { color: #ce9178; }
+.cmt { color: #6a9955; }
+.num { color: #b5cea8; }
+
+/* === 2열 레이아웃 === */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1rem, 3vw, 3rem);
+  width: min(85%, 800px);
+  text-align: left;
+}
+
+.two-col .col-label {
+  font-family: var(--font-mono);
+  font-size: var(--small-size);
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.6em;
+}
+
+.two-col ul { width: 100%; }
+
+/* === 화자 노트 (숨김) === */
+aside.notes { display: none; }
+
+/* === 상단 진행 바 === */
+.progress-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 2px;
+  z-index: 100;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--accent);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 0.4s var(--ease-out-expo);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+/* === 슬라이드 카운터 === */
+.slide-counter {
+  position: fixed;
+  bottom: 18px; right: 24px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  z-index: 100;
+  letter-spacing: 0.1em;
+}
+
+/* === 내비게이션 버튼 === */
+.slide-controls {
+  position: fixed;
+  bottom: 14px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 14px;
+  z-index: 100;
+}
+
+.slide-controls button {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.slide-controls button:hover {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* === 슬라이드별 테마 === */
+.slide.theme-title h1 {
+  background: linear-gradient(135deg, var(--text-primary) 40%, var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { text-shadow: 0 0 20px var(--accent-dim); }
+  50%       { text-shadow: 0 0 50px var(--accent-glow); }
+}
+
+.slide.theme-end h1 { color: var(--accent); }
+.slide.theme-end.active h1 { animation: pulseGlow 3s ease-in-out infinite; }
+
+/* === 미디어 쿼리 === */
+@media (max-height: 600px) {
+  :root { --slide-padding: 1.5rem 3rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slide { transition: opacity 0.3s ease; }
+  .auto-fragment { animation-duration: 0.3s; }
+}
+</style>
+</head>
+<body>
+
+<main class="presentation" role="application" aria-roledescription="슬라이드 프레젠테이션">
+  <div class="slides-viewport">
+
+    <!-- 슬라이드 1: 타이틀 -->
+    <section class="slide theme-title" id="slide-1" role="group" aria-roledescription="슬라이드" aria-label="타이틀">
+      <div class="terminal-badge">vanilla presentation</div>
+      <h1>순수 <span class="accent">바닐라</span> 프레젠테이션</h1>
+      <div class="accent-line"></div>
+      <p class="subtitle">HTML + CSS + JavaScript만으로 구현</p>
+      <aside class="notes">오프닝 슬라이드입니다.</aside>
+    </section>
+
+    <!-- 슬라이드 2: 왜 바닐라인가 -->
+    <section class="slide theme-content" id="slide-2" role="group" aria-roledescription="슬라이드" aria-label="왜 바닐라인가">
+      <h2>왜 <span class="accent">바닐라</span>인가?</h2>
+      <ul>
+        <li class="auto-fragment" style="--i:0">의존성 <span class="accent">0</span> — 빌드 도구, 번들러, CDN 불필요</li>
+        <li class="auto-fragment" style="--i:1">단일 HTML 파일로 즉시 실행 가능</li>
+        <li class="auto-fragment" style="--i:2">라이브러리 API 변경에 영향받지 않음</li>
+        <li class="auto-fragment" style="--i:3">브라우저 네이티브 기능만으로 충분히 구현 가능</li>
+        <li class="auto-fragment" style="--i:4">완전한 코드 소유권과 커스터마이징 자유</li>
+      </ul>
+      <aside class="notes">바닐라 JS를 선택한 이유를 설명합니다.</aside>
+    </section>
+
+    <!-- 슬라이드 3: 핵심 기능 -->
+    <section class="slide theme-content" id="slide-3" role="group" aria-roledescription="슬라이드" aria-label="핵심 기능">
+      <h2>핵심 기능</h2>
+      <ul>
+        <li class="auto-fragment" style="--i:0">키보드 / 터치 / 클릭 네비게이션</li>
+        <li class="auto-fragment" style="--i:1">GPU 가속 슬라이드 전환 애니메이션</li>
+        <li class="auto-fragment" style="--i:2">진입 시 자동 순차 등장 효과</li>
+        <li class="auto-fragment" style="--i:3">풀스크린 뷰포트 + 반응형 타이포그래피</li>
+        <li class="auto-fragment" style="--i:4">URL hash 동기화 + 상단 프로그레스 바</li>
+      </ul>
+      <aside class="notes">주요 기능을 소개합니다.</aside>
+    </section>
+
+    <!-- 슬라이드 4: 레이아웃 설계 -->
+    <section class="slide theme-content" id="slide-4" role="group" aria-roledescription="슬라이드" aria-label="레이아웃 설계">
+      <h2>레이아웃 설계</h2>
+      <div class="two-col">
+        <div>
+          <div class="col-label">구조</div>
+          <ul>
+            <li class="auto-fragment" style="--i:0"><span class="accent">100vw × 100dvh</span> 풀스크린</li>
+            <li class="auto-fragment" style="--i:1">position: absolute 스택</li>
+            <li class="auto-fragment" style="--i:2">flex 센터 정렬</li>
+          </ul>
+        </div>
+        <div>
+          <div class="col-label">스타일</div>
+          <ul>
+            <li class="auto-fragment" style="--i:3"><span class="accent">clamp()</span> 반응형 폰트</li>
+            <li class="auto-fragment" style="--i:4">CSS 변수 테마 시스템</li>
+            <li class="auto-fragment" style="--i:5">scanline + grid 오버레이</li>
+          </ul>
+        </div>
+      </div>
+      <aside class="notes">레이아웃 설계 방식을 설명합니다.</aside>
+    </section>
+
+    <!-- 슬라이드 5: GPU 가속 코드 -->
+    <section class="slide theme-code" id="slide-5" role="group" aria-roledescription="슬라이드" aria-label="GPU 가속 전환">
+      <h2>GPU 가속 전환</h2>
+      <div class="terminal-window">
+        <div class="terminal-bar">
+          <span class="terminal-dot"></span>
+          <span class="terminal-dot"></span>
+          <span class="terminal-dot"></span>
+        </div>
+        <pre class="code-block"><code><span class="cmt">// Compositor 스레드에서 처리 — Layout/Paint 없음</span></code>
+<code>.slide {</code>
+<code class="highlight">  transform: translate3d(<span class="num">100%</span>, <span class="num">0</span>, <span class="num">0</span>); <span class="cmt">/* GPU 레이어 활성화 */</span></code>
+<code>  opacity: <span class="num">0</span>;</code>
+<code>  transition: transform <span class="num">0.6s</span> cubic-bezier(<span class="num">0.25</span>, <span class="num">0.46</span>, <span class="num">0.45</span>, <span class="num">0.94</span>),</code>
+<code>              opacity <span class="num">0.6s</span> ease;</code>
+<code>}</code>
+<code class="highlight">.slide.active { transform: translate3d(<span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>); opacity: <span class="num">1</span>; }</code></pre>
+      </div>
+      <aside class="notes">translate3d와 opacity만 애니메이션하여 GPU 가속을 활용합니다.</aside>
+    </section>
+
+    <!-- 슬라이드 6: 전환 원리 -->
+    <section class="slide theme-content" id="slide-6" role="group" aria-roledescription="슬라이드" aria-label="슬라이드 전환 원리">
+      <h2>슬라이드 전환 원리</h2>
+      <div class="two-col">
+        <div>
+          <div class="col-label">잠금 메커니즘</div>
+          <ul>
+            <li class="auto-fragment" style="--i:0"><span class="accent">isAnimating</span> 플래그로 중복 입력 차단</li>
+            <li class="auto-fragment" style="--i:1"><span class="accent">transitionend</span> 이벤트로 완료 감지</li>
+            <li class="auto-fragment" style="--i:2">700ms 안전 타이머 (누락 대비)</li>
+          </ul>
+        </div>
+        <div>
+          <div class="col-label">성능 최적화</div>
+          <ul>
+            <li class="auto-fragment" style="--i:3"><span class="accent">will-change</span> 직전 적용·즉시 해제</li>
+            <li class="auto-fragment" style="--i:4">Forced reflow로 애니메이션 보장</li>
+            <li class="auto-fragment" style="--i:5">인라인 스타일 cleanup 처리</li>
+          </ul>
+        </div>
+      </div>
+      <aside class="notes">전환 메커니즘의 핵심 개념들입니다.</aside>
+    </section>
+
+    <!-- 슬라이드 7: 네비게이션 -->
+    <section class="slide theme-content" id="slide-7" role="group" aria-roledescription="슬라이드" aria-label="네비게이션">
+      <h2>네비게이션</h2>
+      <div class="two-col">
+        <div>
+          <div class="col-label">키보드</div>
+          <ul>
+            <li class="auto-fragment" style="--i:0">←→ / ↑↓ / Space</li>
+            <li class="auto-fragment" style="--i:1">PageUp / PageDown</li>
+            <li class="auto-fragment" style="--i:2">Home / End</li>
+          </ul>
+        </div>
+        <div>
+          <div class="col-label">터치 / 기타</div>
+          <ul>
+            <li class="auto-fragment" style="--i:3"><span class="accent">Pointer Events API</span> 우선</li>
+            <li class="auto-fragment" style="--i:4">Touch Events 폴백</li>
+            <li class="auto-fragment" style="--i:5">UI 버튼 + URL hash</li>
+          </ul>
+        </div>
+      </div>
+      <aside class="notes">다양한 입력 방식을 지원합니다.</aside>
+    </section>
+
+    <!-- 슬라이드 8: 코드 예시 -->
+    <section class="slide theme-code" id="slide-8" role="group" aria-roledescription="슬라이드" aria-label="코드 예시">
+      <h2>코드 예시</h2>
+      <div class="terminal-window">
+        <div class="terminal-bar">
+          <span class="terminal-dot"></span>
+          <span class="terminal-dot"></span>
+          <span class="terminal-dot"></span>
+        </div>
+        <pre class="code-block"><code><span class="cmt">// transitionend 완료 감지 + 안전장치</span></code>
+<code><span class="kw">const</span> onEnd = (e) => {</code>
+<code class="highlight">  <span class="kw">if</span> (e.propertyName !== <span class="str">'transform'</span>) <span class="kw">return</span>;</code>
+<code>  clearTimeout(safetyTimer);</code>
+<code>  cleanup(prevSlide);</code>
+<code>};</code>
+<code>to.addEventListener(<span class="str">'transitionend'</span>, onEnd, { once: <span class="kw">true</span> });</code>
+<code class="highlight"><span class="kw">const</span> safetyTimer = setTimeout(cleanup, <span class="num">700</span>);</code></pre>
+      </div>
+      <aside class="notes">transitionend 이벤트 처리 코드입니다.</aside>
+    </section>
+
+    <!-- 슬라이드 9: 브라우저 호환성 -->
+    <section class="slide theme-content" id="slide-9" role="group" aria-roledescription="슬라이드" aria-label="브라우저 호환성">
+      <h2>브라우저 호환성</h2>
+      <div class="two-col">
+        <div>
+          <div class="col-label">안정 지원</div>
+          <ul>
+            <li class="auto-fragment" style="--i:0">transform / opacity — IE10+</li>
+            <li class="auto-fragment" style="--i:1">CSS 변수 (var()) — IE 제외 전체</li>
+            <li class="auto-fragment" style="--i:2">Pointer Events — Chrome 55+</li>
+          </ul>
+        </div>
+        <div>
+          <div class="col-label">모던 브라우저</div>
+          <ul>
+            <li class="auto-fragment" style="--i:3">clamp() — Chrome 79+</li>
+            <li class="auto-fragment" style="--i:4">aspect-ratio — Chrome 88+</li>
+            <li class="auto-fragment" style="--i:5">100dvh — Chrome 108+</li>
+          </ul>
+        </div>
+      </div>
+      <aside class="notes">주요 기능의 브라우저 지원 범위입니다.</aside>
+    </section>
+
+    <!-- 슬라이드 10: 마무리 -->
+    <section class="slide theme-end" id="slide-10" role="group" aria-roledescription="슬라이드" aria-label="마무리">
+      <div class="terminal-badge">fin</div>
+      <h1>감사합니다</h1>
+      <div class="accent-line"></div>
+      <p class="subtitle">외부 라이브러리 <span class="accent">0개</span> · 단일 HTML 파일</p>
+      <aside class="notes">마지막 슬라이드입니다.</aside>
+    </section>
+
+  </div>
+
+  <nav class="slide-controls" aria-label="슬라이드 내비게이션">
+    <button class="prev" aria-label="이전 슬라이드">←</button>
+    <button class="next" aria-label="다음 슬라이드">→</button>
+  </nav>
+
+  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="slide-counter" id="slideCounter" role="status" aria-live="polite">1 / 10</div>
+</main>
+
+<script>
+(() => {
+  'use strict';
+
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  let currentSlide = 0;
+  let isAnimating = false;
+
+  const TRANSITION_DURATION = 600;
+  const SAFETY_MARGIN = 100;
+
+  function init() {
+    initFromHash();
+    setupKeyboard();
+    setupSwipe(document.querySelector('.slides-viewport'));
+    setupButtons();
+    updateUI();
+  }
+
+  function initFromHash() {
+    const match = location.hash.match(/^#slide-(\d+)$/);
+    if (match) {
+      const idx = parseInt(match[1], 10) - 1;
+      if (idx >= 0 && idx < totalSlides) currentSlide = idx;
+    }
+    slides.forEach(s => {
+      s.classList.remove('active', 'exit-left');
+      s.setAttribute('aria-hidden', 'true');
+    });
+    slides[currentSlide].classList.add('active');
+    slides[currentSlide].setAttribute('aria-hidden', 'false');
+  }
+
+  function goToSlide(index, direction) {
+    if (isAnimating || index < 0 || index >= totalSlides || index === currentSlide) return;
+    isAnimating = true;
+
+    const from = slides[currentSlide];
+    const to = slides[index];
+    const goingForward = direction === undefined ? index > currentSlide : direction === 'forward';
+
+    to.style.willChange = 'transform, opacity';
+    from.style.willChange = 'transform, opacity';
+
+    to.style.transition = 'none';
+    to.style.transform = goingForward ? 'translate3d(100%, 0, 0)' : 'translate3d(-100%, 0, 0)';
+    to.style.opacity = '0';
+
+    void to.offsetHeight;
+
+    to.style.transition = '';
+    to.classList.add('active');
+    to.style.transform = 'translate3d(0, 0, 0)';
+    to.style.opacity = '1';
+    to.setAttribute('aria-hidden', 'false');
+
+    from.classList.remove('active');
+    from.classList.add('exit-left');
+    from.style.transform = goingForward ? 'translate3d(-100%, 0, 0)' : 'translate3d(100%, 0, 0)';
+    from.style.opacity = '0';
+    from.setAttribute('aria-hidden', 'true');
+
+    const prevSlide = currentSlide;
+    currentSlide = index;
+
+    const onEnd = (e) => {
+      if (e.propertyName !== 'transform') return;
+      clearTimeout(safetyTimer);
+      cleanup(prevSlide);
+    };
+    to.addEventListener('transitionend', onEnd, { once: true });
+
+    const safetyTimer = setTimeout(() => {
+      to.removeEventListener('transitionend', onEnd);
+      cleanup(prevSlide);
+    }, TRANSITION_DURATION + SAFETY_MARGIN);
+
+    updateUI();
+  }
+
+  function cleanup(prevIndex) {
+    const prev = slides[prevIndex];
+    prev.classList.remove('exit-left');
+    prev.style.transform = '';
+    prev.style.opacity = '';
+    prev.style.willChange = 'auto';
+    slides[currentSlide].style.transform = '';
+    slides[currentSlide].style.opacity = '';
+    slides[currentSlide].style.willChange = 'auto';
+    isAnimating = false;
+  }
+
+  // 1슬라이드 단위 이동
+  function handleNext() { goToSlide(currentSlide + 1, 'forward'); }
+  function handlePrev() { goToSlide(currentSlide - 1, 'backward'); }
+
+  function setupKeyboard() {
+    document.addEventListener('keydown', (e) => {
+      const tag = e.target.tagName.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+      switch (e.key) {
+        case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown':
+          e.preventDefault(); handleNext(); break;
+        case 'ArrowLeft': case 'ArrowUp': case 'PageUp':
+          e.preventDefault(); handlePrev(); break;
+        case 'Home': e.preventDefault(); goToSlide(0); break;
+        case 'End':  e.preventDefault(); goToSlide(totalSlides - 1); break;
+      }
+    });
+  }
+
+  function setupSwipe(container) {
+    let startX = 0, startY = 0, startTime = 0;
+    const THRESHOLD = 50, MAX_TIME = 400, VERTICAL_LIMIT = 80;
+
+    function onStart(x, y) { startX = x; startY = y; startTime = Date.now(); }
+    function onEnd(x, y) {
+      const dx = x - startX, dy = y - startY;
+      if (Date.now() - startTime > MAX_TIME || Math.abs(dy) > VERTICAL_LIMIT) return;
+      if (dx > THRESHOLD) handlePrev();
+      else if (dx < -THRESHOLD) handleNext();
+    }
+
+    if (window.PointerEvent) {
+      container.addEventListener('pointerdown', e => onStart(e.clientX, e.clientY));
+      container.addEventListener('pointerup',   e => onEnd(e.clientX, e.clientY));
+    } else {
+      container.addEventListener('touchstart', e => {
+        const t = e.changedTouches[0]; onStart(t.clientX, t.clientY);
+      }, { passive: true });
+      container.addEventListener('touchend', e => {
+        const t = e.changedTouches[0]; onEnd(t.clientX, t.clientY);
+      });
+    }
+    container.addEventListener('touchmove', e => {
+      const t = e.changedTouches[0];
+      if (Math.abs(t.clientX - startX) > Math.abs(t.clientY - startY)) e.preventDefault();
+    }, { passive: false });
+  }
+
+  function setupButtons() {
+    document.querySelector('.prev').addEventListener('click', handlePrev);
+    document.querySelector('.next').addEventListener('click', handleNext);
+  }
+
+  function updateUI() {
+    const progress = totalSlides > 1 ? currentSlide / (totalSlides - 1) : 0;
+    document.getElementById('progressBar').style.transform = `scaleX(${progress})`;
+    document.getElementById('slideCounter').textContent = `${currentSlide + 1} / ${totalSlides}`;
+    history.replaceState({ slide: currentSlide }, '', `#slide-${currentSlide + 1}`);
+  }
+
+  window.addEventListener('hashchange', () => {
+    const match = location.hash.match(/^#slide-(\d+)$/);
+    if (match) {
+      const idx = parseInt(match[1], 10) - 1;
+      if (idx >= 0 && idx < totalSlides && idx !== currentSlide) goToSlide(idx);
+    }
+  });
+
+  init();
+})();
+</script>
+
+</body>
+</html>

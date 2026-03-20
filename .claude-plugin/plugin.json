@@ -1,0 +1,10 @@
+{
+  "name": "PGH-PresenMaker",
+  "version": "1.0.0",
+  "description": "순수 HTML/CSS/JS로 웹 프레젠테이션을 생성하는 플러그인. 외부 라이브러리 없이 단일 HTML 파일로 GPU 가속 슬라이드 전환, 키보드/터치 네비게이션, 풀스크린 모드를 지원하는 프레젠테이션을 만듭니다.",
+  "author": {
+    "name": "ParkGeonhee"
+  },
+  "license": "MIT",
+  "keywords": ["presentation", "slides", "html", "ppt", "프레젠테이션", "발표자료"]
+}
