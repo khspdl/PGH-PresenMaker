@@ -41,7 +41,8 @@ Claude Code에서 프레젠테이션 관련 요청을 하면 자동으로 스킬
 ## 설치
 
 ```bash
-claude plugin add /path/to/PGH-PresenMaker
+claude plugin marketplace add khspdl/PGH-PresenMaker
+claude plugin install PGH-PresenMaker@pgh-marketplace
 ```
 
 ## Author
