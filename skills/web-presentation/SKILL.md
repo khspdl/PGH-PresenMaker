@@ -164,18 +164,8 @@ h1에 `pulseGlow` 애니메이션 적용.
 
 ## JS 기능: 키보드 네비게이션
 
-샘플의 `setupKeyboard()` 함수를 기반으로 하되, **F키 풀스크린을 추가**한다:
-
-```javascript
-case 'f': case 'F':
-  e.preventDefault();
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(() => {});
-  } else {
-    document.exitFullscreen();
-  }
-  break;
-```
+샘플의 `setupKeyboard()` 함수에 F키 풀스크린과 D키 테마 전환이 포함되어 있다.
+D/F 키는 `e.code` (물리적 키 위치) 기반으로 처리하여 한글(ㅇ/ㄹ), 일본어 IME 상태에서도 동작한다. switch문 밖에서 `e.code === 'KeyD'`, `e.code === 'KeyF'`로 분기한다.
 
 전체 키 매핑:
 | 키 | 동작 |
@@ -185,6 +175,24 @@ case 'f': case 'F':
 | Home | 첫 슬라이드 |
 | End | 마지막 슬라이드 |
 | F | 풀스크린 토글 |
+| D | 다크/라이트 모드 전환 |
+
+## 다크/라이트 모드 전환
+
+샘플에 이미 구현되어 있다. 핵심 구조:
+
+- **CSS**: `[data-theme="light"]` 선택자로 라이트 모드 변수 오버라이드. `--accent` 색상은 유지하고 `--bg`, `--text-*`, `--border`만 변경
+- **토글 버튼**: 카운터 옆에 원형 버튼 (달/해 아이콘). `<button class="theme-toggle" id="themeToggle">`
+- **JS**: `toggleTheme()` 함수가 `<html>`의 `data-theme` 속성을 토글하고 `localStorage`에 저장
+- **D키**: `setupKeyboard()`에서 `case 'd': case 'D':` → `toggleTheme()` 호출
+
+라이트 모드에서 추가로 오버라이드해야 하는 요소:
+- `.slide::before` (scanline) — `rgba(0,0,0,0.01)` 계열로 변경
+- `.slide::after` (grid) — accent 색상의 투명도를 0.04로 높임
+- `.terminal-window` 배경 — `#fafafa`
+- `.terminal-bar` 배경 — `#eee`
+- `.slide-controls button` 배경 — `rgba(0,0,0,0.04)`
+- `.theme-toggle` 배경 — `rgba(0,0,0,0.04)`
 
 ## 주의사항
 
