@@ -798,6 +798,48 @@
         }
 
         /* ===========================================
+           SLIDE TYPE: slide-code
+           — 구문 강조 코드 블록
+           =========================================== */
+        pre.code-block {
+            counter-reset: line;
+            padding: 1.2em 1.4em;
+            overflow-x: auto;
+            text-align: left;
+        }
+        pre.code-block code {
+            display: block;
+            counter-increment: line;
+            padding: 2px 0 2px 3em;
+            position: relative;
+            font-family: var(--font-mono);
+            font-size: clamp(0.72rem, 1vw, 0.95rem);
+            white-space: pre;
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+        pre.code-block code::before {
+            content: counter(line);
+            position: absolute;
+            left: 0;
+            width: 2.2em;
+            text-align: right;
+            color: var(--text-dim);
+            border-right: 1px solid var(--border);
+            padding-right: 0.5em;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        pre.code-block code.highlight {
+            background: var(--accent-dim);
+            border-left: 2px solid var(--accent);
+        }
+        .kw { color: #569cd6; }
+        .str { color: #ce9178; }
+        .cmt { color: #6a9955; }
+        .num { color: #b5cea8; }
+
+        /* ===========================================
            SLIDE TYPE: slide-terminal
            — 터미널 명령어 표시
            =========================================== */
@@ -1166,11 +1208,28 @@
             }
         }
 
+        /* ===========================================
+           ANIMATION: auto-fragment 호환 (슬라이드 모드 HTML과 호환)
+           =========================================== */
+        @keyframes fragmentIn {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .auto-fragment {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+        .slide.visible .auto-fragment {
+            animation: fragmentIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            animation-delay: calc(0.3s * var(--i, 0));
+        }
+
         @media (prefers-reduced-motion: reduce) {
             .reveal {
                 transition: opacity 0.3s ease;
                 transform: none;
             }
+            .auto-fragment { animation-duration: 0.3s; }
             html { scroll-behavior: auto; }
             .cursor-blink, .terminal-badge::before, .spinner {
                 animation: none;
@@ -1440,6 +1499,7 @@
                 this.createNavDots();
                 this.setupIntersectionObserver();
                 this.setupKeyboardNav();
+                this.setupSwipe();
                 this.setupScrollTracking();
                 this.setupThemeToggle();
                 this.initTheme();
@@ -1497,6 +1557,31 @@
                         this.toggleTheme();
                     }
                 });
+            }
+
+            setupSwipe() {
+                let startY = 0, startTime = 0;
+                const THRESHOLD = 50, MAX_TIME = 400;
+
+                const onStart = (y) => { startY = y; startTime = Date.now(); };
+                const onEnd = (y) => {
+                    const dy = y - startY;
+                    if (Date.now() - startTime > MAX_TIME || Math.abs(dy) < THRESHOLD) return;
+                    if (dy < 0) this.goToSlide(this.currentSlide + 1);
+                    else this.goToSlide(this.currentSlide - 1);
+                };
+
+                if (window.PointerEvent) {
+                    document.addEventListener('pointerdown', e => onStart(e.clientY));
+                    document.addEventListener('pointerup', e => onEnd(e.clientY));
+                } else {
+                    document.addEventListener('touchstart', e => {
+                        onStart(e.changedTouches[0].clientY);
+                    }, { passive: true });
+                    document.addEventListener('touchend', e => {
+                        onEnd(e.changedTouches[0].clientY);
+                    });
+                }
             }
 
             setupScrollTracking() {

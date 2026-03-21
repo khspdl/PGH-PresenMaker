@@ -9,31 +9,38 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=Inter:wght@300;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Noto+Sans+JP:wght@400;700&family=Inter:wght@300;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"></noscript>
 <style>
-/* === CSS 변수 === */
+/* ===================================================
+   CSS 변수
+   =================================================== */
 :root {
-  --bg:             #000000;
-  --accent:         #38bd84;
-  --accent-dim:     rgba(56, 189, 132, 0.15);
-  --accent-glow:    rgba(56, 189, 132, 0.3);
-  --text-primary:   #e8e8e8;
+  --bg: #000000;
+  --accent: #38bd84;
+  --accent-dim: rgba(56, 189, 132, 0.15);
+  --accent-glow: rgba(56, 189, 132, 0.3);
+  --text-primary: #e8e8e8;
   --text-secondary: #888;
-  --text-dim:       #555;
-  --border:         #1a1a1a;
-  --ease-out-expo:  cubic-bezier(0.16, 1, 0.3, 1);
+  --text-dim: #555;
+  --border: #1a1a1a;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
   --font-sans: 'Noto Sans KR', 'Noto Sans JP', 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
   --title-size: clamp(2rem, 5vw, 4rem);
-  --h2-size:    clamp(1.4rem, 3vw, 2.4rem);
-  --body-size:  clamp(0.9rem, 1.4vw, 1.15rem);
+  --h2-size: clamp(1.4rem, 3vw, 2.4rem);
+  --h3-size: clamp(1.2rem, 2.5vw, 1.8rem);
+  --body-size: clamp(0.9rem, 1.4vw, 1.15rem);
+  --label-size: clamp(0.8rem, 1.4vw, 1.1rem);
   --small-size: clamp(0.75rem, 1vw, 0.9rem);
 
   --slide-padding: clamp(2.5rem, 6vw, 6rem);
-  --content-gap:   clamp(1rem, 2vw, 2rem);
+  --content-gap: clamp(1rem, 2vw, 2rem);
+  --element-gap: clamp(0.5rem, 1vw, 1rem);
 }
 
-/* === 리셋 & 기본 === */
+/* ===================================================
+   리셋 & 기본
+   =================================================== */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html, body {
   width: 100%; height: 100%;
@@ -44,7 +51,58 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* === 뷰포트 (풀스크린) === */
+/* ===================================================
+   라이트 테마
+   =================================================== */
+[data-theme="light"] {
+  --bg: #f5f5f5;
+  --text-primary: #1a1a1a;
+  --text-secondary: #555;
+  --text-dim: #999;
+  --border: #ddd;
+}
+
+[data-theme="light"] .slide::before {
+  background: repeating-linear-gradient(0deg,
+    transparent, transparent 2px,
+    rgba(0,0,0,0.01) 2px, rgba(0,0,0,0.01) 4px);
+}
+
+[data-theme="light"] .slide::after {
+  background-image:
+    linear-gradient(rgba(56,189,132,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56,189,132,0.04) 1px, transparent 1px);
+}
+
+[data-theme="light"] .terminal-window,
+[data-theme="light"] .dark-card,
+[data-theme="light"] .slide-compare .compare-card,
+[data-theme="light"] .slide-steps .step-item,
+[data-theme="light"] .slide-features .target-list li,
+[data-theme="light"] .feature-list li,
+[data-theme="light"] .slide-benefits .benefit-card,
+[data-theme="light"] .slide-concept .diagram-box,
+[data-theme="light"] .slide-concept .concept-card,
+[data-theme="light"] .slide-before-after .comparison-card,
+[data-theme="light"] .slide-before-after .result-card,
+[data-theme="light"] .slide-result .result-card,
+[data-theme="light"] .slide-prompt .prompt-card,
+[data-theme="light"] .slide-cta .cta-card,
+[data-theme="light"] .slide-diagram .main-agent,
+[data-theme="light"] .slide-diagram .sub-agent,
+[data-theme="light"] .slide-diagram .key-point,
+[data-theme="light"] .quote-bubble {
+  background: #fafafa;
+}
+
+[data-theme="light"] .terminal-bar { background: #eee; }
+[data-theme="light"] .slide-controls button { background: rgba(0,0,0,0.04); }
+[data-theme="light"] .theme-toggle { background: rgba(0,0,0,0.04); }
+[data-theme="light"] .slide-summary .tag-pill { background: rgba(56,189,132,0.08); }
+
+/* ===================================================
+   뷰포트 (풀스크린)
+   =================================================== */
 .slides-viewport {
   width: 100vw;
   height: 100vh;
@@ -53,7 +111,9 @@ html, body {
   overflow: hidden;
 }
 
-/* === 개별 슬라이드 === */
+/* ===================================================
+   개별 슬라이드 (transform 기반 전환)
+   =================================================== */
 .slide {
   position: absolute;
   inset: 0;
@@ -79,12 +139,9 @@ html, body {
   content: '';
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
+  background: repeating-linear-gradient(0deg,
     transparent, transparent 2px,
-    rgba(255,255,255,0.008) 2px,
-    rgba(255,255,255,0.008) 4px
-  );
+    rgba(255,255,255,0.008) 2px, rgba(255,255,255,0.008) 4px);
   pointer-events: none;
   z-index: 1;
 }
@@ -116,74 +173,51 @@ html, body {
   z-index: 1;
 }
 
-/* === 타이포그래피 === */
-.slide h1 {
-  font-size: var(--title-size);
-  font-weight: 700;
-  line-height: 1.15;
-  text-align: center;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
+/* ===================================================
+   슬라이드 콘텐츠 래퍼
+   =================================================== */
+.slide-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  max-height: 100%;
+  overflow: hidden;
+  width: 100%;
+  max-width: 1000px;
 }
 
-.slide h2 {
-  font-size: var(--h2-size);
-  font-weight: 700;
-  line-height: 1.2;
-  text-align: center;
-  color: var(--text-primary);
-  letter-spacing: -0.01em;
-  margin-bottom: var(--content-gap);
+/* ===================================================
+   키프레임
+   =================================================== */
+@keyframes blink { 50% { opacity: 0; } }
+@keyframes lineGrow { from { width: 0; opacity: 0; } to { width: 60px; opacity: 1; } }
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 10px var(--accent-dim); }
+  50% { box-shadow: 0 0 25px var(--accent-glow); }
+}
+@keyframes pulseGlowText {
+  0%, 100% { text-shadow: 0 0 20px var(--accent-dim); }
+  50% { text-shadow: 0 0 50px var(--accent-glow); }
+}
+@keyframes fragmentIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.slide p {
-  font-size: var(--body-size);
-  color: var(--text-secondary);
-  line-height: 1.7;
-  text-align: center;
-}
-
-.slide ul {
-  list-style: none;
-  text-align: left;
-  width: min(80%, 640px);
-}
-
-.slide li {
-  font-size: var(--body-size);
-  line-height: 1.75;
-  padding: 0.35em 0 0.35em 1.6em;
-  position: relative;
-  color: var(--text-primary);
-}
-
-.slide li::before {
-  content: "▸";
-  position: absolute;
-  left: 0;
-  color: var(--accent);
-}
-
-/* === 강조 텍스트 === */
+/* ===================================================
+   공통 컴포넌트
+   =================================================== */
 .accent { color: var(--accent); }
 
-.subtitle {
-  font-size: clamp(0.85rem, 1.2vw, 1.1rem);
-  color: var(--text-secondary);
-  margin-top: 0.5em;
-  text-align: center;
-  font-weight: 300;
-}
-
-/* === accent 구분선 === */
 .accent-line {
-  width: 50px;
+  width: 60px;
   height: 2px;
   background: var(--accent);
   margin: var(--content-gap) auto;
 }
 
-/* === 터미널 배지 === */
 .terminal-badge {
   font-family: var(--font-mono);
   font-size: var(--small-size);
@@ -195,60 +229,504 @@ html, body {
   gap: 0.4em;
   margin-bottom: 1em;
 }
-
 .terminal-badge::before {
   content: '>';
   animation: blink 1s step-end infinite;
 }
 
-@keyframes blink { 50% { opacity: 0; } }
+.section-title {
+  font-family: var(--font-sans);
+  font-size: var(--title-size);
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+}
+.section-title .accent { color: var(--accent); }
 
-/* === 자동 순차 등장 효과 === */
-@keyframes fragmentIn {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
+.subtitle {
+  font-size: clamp(0.85rem, 1.2vw, 1.1rem);
+  color: var(--text-secondary);
+  margin-top: 0.5em;
+  text-align: center;
+  font-weight: 300;
 }
 
-.auto-fragment {
-  opacity: 0;
-  transform: translateY(18px);
+.desc {
+  font-size: var(--body-size);
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.7;
+  max-width: 700px;
 }
 
-.slide.active .auto-fragment {
-  animation: fragmentIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-  animation-delay: calc(0.3s * var(--i, 0));
+.dark-card {
+  background: #080808;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: clamp(1.2rem, 2.5vw, 2rem);
 }
 
-/* === 코드 블록 (터미널 스타일) === */
+.quote-bubble {
+  font-family: var(--font-mono);
+  font-size: var(--body-size);
+  color: var(--text-primary);
+  background: #0a0a0a;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  padding: clamp(0.8rem, 1.5vw, 1.2rem) clamp(1rem, 2vw, 1.5rem);
+  border-radius: 4px;
+  width: 100%;
+  max-width: 600px;
+}
+
+/* 터미널 윈도우 */
 .terminal-window {
   background: #0a0a0a;
   border: 1px solid var(--border);
   border-radius: 8px;
-  width: min(85%, 680px);
+  width: 100%;
+  max-width: 700px;
   overflow: hidden;
+  margin-top: var(--content-gap);
 }
-
 .terminal-bar {
   background: #111;
-  padding: 10px 14px;
+  padding: clamp(0.4rem, 0.8vw, 0.6rem) clamp(0.8rem, 1.2vw, 1rem);
   display: flex;
-  gap: 6px;
   align-items: center;
+  gap: 6px;
   border-bottom: 1px solid var(--border);
 }
-
 .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
 .terminal-dot:nth-child(1) { background: #ff5f57; }
 .terminal-dot:nth-child(2) { background: #febc2e; }
 .terminal-dot:nth-child(3) { background: #28c840; }
+.terminal-body {
+  padding: clamp(1rem, 2vw, 1.5rem);
+  font-family: var(--font-mono);
+  font-size: var(--body-size);
+}
+.prompt-line { color: var(--text-dim); line-height: 1.8; }
+.prompt-line .prompt { color: var(--accent); }
+.prompt-line .cmd { color: var(--text-primary); }
+.prompt-line .string { color: var(--text-secondary); }
+.prompt-line:last-child { margin-bottom: 0; }
+.terminal-body .success { color: var(--accent); }
+.terminal-body .indent { padding-left: 1.5em; }
+.cursor-blink {
+  display: inline-block;
+  width: 8px;
+  height: 1.1em;
+  background: var(--accent);
+  vertical-align: text-bottom;
+  animation: blink 1s step-end infinite;
+  margin-left: 2px;
+}
 
+/* 피처 리스트 */
+.feature-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--element-gap);
+  width: 100%;
+  max-width: 700px;
+}
+.feature-list li {
+  font-size: var(--body-size);
+  color: var(--text-secondary);
+  padding: clamp(0.6rem, 1vw, 0.8rem) clamp(1rem, 1.5vw, 1.2rem);
+  background: #050505;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.5rem, 1vw, 0.8rem);
+}
+.feature-list li .icon {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: var(--small-size);
+  flex-shrink: 0;
+}
+
+/* ===================================================
+   슬라이드 타입: slide-title — 메인 타이틀
+   =================================================== */
+.slide-title .big-answer {
+  font-family: var(--font-sans);
+  font-size: clamp(2.5rem, 7vw, 6rem);
+  font-weight: 900;
+  text-align: center;
+  line-height: 1.05;
+}
+.slide-title .big-answer .accent { color: var(--accent); }
+.slide-title .sub {
+  font-family: var(--font-mono);
+  font-size: var(--label-size);
+  color: var(--text-dim);
+  margin-top: var(--content-gap);
+}
+
+/* ===================================================
+   슬라이드 타입: slide-transition — 섹션 전환
+   =================================================== */
+.slide-transition .big-title {
+  font-family: var(--font-sans);
+  font-size: clamp(2.5rem, 7vw, 6rem);
+  font-weight: 900;
+  text-align: center;
+  line-height: 1.05;
+}
+.slide-transition .big-title .accent { color: var(--accent); }
+.slide-transition .sub,
+.slide-transition .subtitle {
+  font-family: var(--font-mono);
+  font-size: var(--label-size);
+  color: var(--text-dim);
+  margin-top: var(--content-gap);
+  text-align: center;
+}
+
+/* ===================================================
+   슬라이드 타입: slide-features — 번호 목록
+   =================================================== */
+.slide-features .target-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.6rem, 1.2vw, 1rem);
+  width: 100%;
+  max-width: 700px;
+  margin-top: var(--content-gap);
+}
+.slide-features .target-list li {
+  font-size: var(--body-size);
+  color: var(--text-primary);
+  padding: clamp(0.8rem, 1.2vw, 1rem) clamp(1rem, 2vw, 1.5rem);
+  background: #050505;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.5rem, 1vw, 0.8rem);
+}
+.slide-features .target-list li .num {
+  font-family: var(--font-mono);
+  font-size: var(--small-size);
+  color: var(--accent);
+  flex-shrink: 0;
+  width: 2em;
+}
+
+/* ===================================================
+   슬라이드 타입: slide-concept — 다이어그램
+   =================================================== */
+/* 스타일 A: 화살표 연결 박스 */
+.slide-concept .diagram {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  margin-top: var(--content-gap);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.slide-concept .diagram-box {
+  background: #080808;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: clamp(1rem, 2vw, 1.5rem) clamp(1.5rem, 3vw, 2.5rem);
+  text-align: center;
+  min-width: 160px;
+}
+.slide-concept .diagram-box .box-label {
+  font-family: var(--font-mono);
+  font-size: var(--label-size);
+  color: var(--accent);
+  margin-bottom: 0.3rem;
+}
+.slide-concept .diagram-box .box-desc {
+  font-size: var(--small-size);
+  color: var(--text-dim);
+}
+.slide-concept .diagram-box.output {
+  border-color: var(--accent);
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+.slide-concept .diagram-arrow {
+  font-family: var(--font-mono);
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  color: var(--accent);
+}
+
+/* 스타일 B: 카드 흐름 */
+.slide-concept .concept-flow {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(0.4rem, 1vw, 1rem);
+  margin-top: var(--content-gap);
+  flex-wrap: nowrap;
+  justify-content: center;
+  width: 100%;
+  max-width: 850px;
+}
+.slide-concept .concept-card {
+  background: #080808;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: clamp(0.8rem, 1.5vw, 1.2rem);
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.3rem, 0.5vw, 0.5rem);
+}
+.slide-concept .concept-card .card-label {
+  font-family: var(--font-mono);
+  font-size: var(--h3-size);
+  font-weight: 700;
+  color: var(--accent);
+}
+.slide-concept .concept-card .card-desc {
+  font-size: var(--small-size);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.slide-concept .concept-arrow {
+  color: var(--accent);
+  font-size: var(--h3-size);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ===================================================
+   슬라이드 타입: slide-steps — 단계 플로우
+   =================================================== */
+.slide-steps .step-flow {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.5rem, 1.5vw, 1.5rem);
+  margin-top: var(--content-gap);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.slide-steps .step-item {
+  font-family: var(--font-mono);
+  font-size: var(--label-size);
+  color: var(--text-primary);
+  padding: clamp(0.8rem, 1.5vw, 1.2rem) clamp(1.2rem, 2vw, 1.8rem);
+  background: #080808;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  text-align: center;
+  min-width: 120px;
+}
+.slide-steps .step-item.active {
+  border-color: var(--accent);
+  background: rgba(56,189,132,0.05);
+  color: var(--accent);
+}
+.slide-steps .step-item .step-num {
+  font-size: var(--small-size);
+  color: var(--text-dim);
+  display: block;
+  margin-bottom: 0.3rem;
+}
+.slide-steps .step-item.active .step-num { color: var(--accent-glow); }
+.slide-steps .step-arrow {
+  color: var(--accent);
+  font-size: var(--body-size);
+}
+
+/* ===================================================
+   슬라이드 타입: slide-compare — 2열 비교
+   =================================================== */
+.slide-compare .compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(0.8rem, 2vw, 1.5rem);
+  width: 100%;
+  max-width: 750px;
+  margin-top: var(--content-gap);
+}
+.slide-compare .compare-card {
+  background: #080808;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: clamp(1rem, 2vw, 1.5rem);
+}
+.slide-compare .compare-card .card-header {
+  font-family: var(--font-mono);
+  font-size: var(--label-size);
+  color: var(--accent);
+  margin-bottom: var(--element-gap);
+  padding-bottom: var(--element-gap);
+  border-bottom: 1px solid var(--border);
+}
+.slide-compare .compare-card .compare-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.3rem, 0.6vw, 0.5rem);
+}
+.slide-compare .compare-card .compare-list li {
+  font-size: var(--small-size);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  line-height: 1.5;
+}
+.slide-compare .compare-card .compare-list li .bullet {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+
+/* ===================================================
+   슬라이드 타입: slide-diagram — 구조 다이어그램
+   =================================================== */
+.slide-diagram .agent-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.8rem, 1.5vw, 1.2rem);
+  margin-top: var(--content-gap);
+  width: 100%;
+  max-width: 600px;
+}
+.slide-diagram .main-agent {
+  background: #080808;
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  padding: clamp(0.8rem, 1.5vw, 1.2rem) clamp(1.5rem, 3vw, 2.5rem);
+  font-family: var(--font-mono);
+  font-size: var(--label-size);
+  color: var(--accent);
+  text-align: center;
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+.slide-diagram .arrows-row {
+  display: flex;
+  justify-content: center;
+  gap: clamp(2rem, 6vw, 5rem);
+  color: var(--accent);
+  font-size: var(--body-size);
+}
+.slide-diagram .sub-agents {
+  display: flex;
+  gap: clamp(0.5rem, 1.5vw, 1.2rem);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.slide-diagram .sub-agent {
+  background: #080808;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: clamp(0.6rem, 1vw, 0.8rem) clamp(1rem, 1.5vw, 1.2rem);
+  font-family: var(--font-mono);
+  font-size: var(--small-size);
+  color: var(--text-secondary);
+  text-align: center;
+}
+.slide-diagram .key-point {
+  font-family: var(--font-mono);
+  font-size: var(--small-size);
+  color: var(--text-dim);
+  margin-top: var(--element-gap);
+  text-align: center;
+  padding: clamp(0.5rem, 1vw, 0.8rem) clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #050505;
+}
+
+/* ===================================================
+   슬라이드 타입: slide-before-after — 문제-해결 대비
+   =================================================== */
+.slide-before-after .comparison-card {
+  background: #080808;
+  border: 1px solid #1f1f1f;
+  border-radius: 8px;
+  padding: clamp(1.2rem, 2.5vw, 2rem);
+  width: 100%;
+  max-width: 650px;
+  margin-top: var(--content-gap);
+}
+.slide-before-after .comparison-card .card-title {
+  font-family: var(--font-mono);
+  font-size: var(--label-size);
+  color: var(--text-dim);
+  margin-bottom: var(--element-gap);
+}
+.slide-before-after .pain-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.4rem, 0.8vw, 0.6rem);
+}
+.slide-before-after .pain-list li {
+  font-size: var(--body-size);
+  color: #cc6666;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.slide-before-after .pain-list li .x {
+  font-family: var(--font-mono);
+  color: #cc6666;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.slide-before-after .result-card {
+  background: #080808;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  width: 100%;
+  max-width: 650px;
+  text-align: center;
+  margin-top: var(--content-gap);
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+.slide-before-after .result-card .check {
+  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--accent);
+  margin-bottom: var(--element-gap);
+}
+.slide-before-after .result-card .result-title {
+  font-family: var(--font-sans);
+  font-size: var(--h3-size);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--element-gap);
+}
+.slide-before-after .result-tags {
+  display: flex;
+  gap: clamp(0.3rem, 0.8vw, 0.6rem);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.slide-before-after .result-tag {
+  font-family: var(--font-mono);
+  font-size: var(--small-size);
+  color: var(--accent);
+  padding: 0.3em 0.7em;
+  border: 1px solid var(--accent-dim);
+  border-radius: 100px;
+}
+
+/* ===================================================
+   슬라이드 타입: slide-code — 구문 강조 코드 블록
+   =================================================== */
 pre.code-block {
   counter-reset: line;
   padding: 1.2em 1.4em;
   overflow-x: auto;
   text-align: left;
 }
-
 pre.code-block code {
   display: block;
   counter-increment: line;
@@ -260,7 +738,6 @@ pre.code-block code {
   color: var(--text-primary);
   line-height: 1.7;
 }
-
 pre.code-block code::before {
   content: counter(line);
   position: absolute;
@@ -273,48 +750,219 @@ pre.code-block code::before {
   user-select: none;
   -webkit-user-select: none;
 }
-
 pre.code-block code.highlight {
   background: var(--accent-dim);
   border-left: 2px solid var(--accent);
 }
-
-.kw  { color: #569cd6; }
+.kw { color: #569cd6; }
 .str { color: #ce9178; }
 .cmt { color: #6a9955; }
 .num { color: #b5cea8; }
 
-/* === 2열 레이아웃 === */
-.two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: clamp(1rem, 3vw, 3rem);
-  width: min(85%, 800px);
-  text-align: left;
+/* ===================================================
+   슬라이드 타입: slide-terminal — 명령어 표시
+   =================================================== */
+/* 공유 .terminal-window 컴포넌트 스타일을 사용 */
+
+/* ===================================================
+   슬라이드 타입: slide-result — 결과 카드
+   =================================================== */
+.slide-result .result-card {
+  background: #080808;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  width: 100%;
+  max-width: 650px;
+  margin-top: var(--content-gap);
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+.slide-result .result-card .result-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.5rem, 1vw, 0.8rem);
+}
+.slide-result .result-card .result-list li {
+  font-size: var(--body-size);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.slide-result .result-card .result-list li .check {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  flex-shrink: 0;
 }
 
-.two-col .col-label {
+/* ===================================================
+   슬라이드 타입: slide-prompt — 질문/인용
+   =================================================== */
+.slide-prompt .prompt-card {
+  background: #080808;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: clamp(1.2rem, 2.5vw, 2rem);
+  width: 100%;
+  max-width: 650px;
+  margin-top: var(--content-gap);
+  text-align: center;
+}
+.slide-prompt .prompt-card .card-text {
+  font-size: var(--body-size);
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* ===================================================
+   슬라이드 타입: slide-summary — 태그 요약
+   =================================================== */
+.slide-summary .tag-row {
+  display: flex;
+  gap: clamp(0.4rem, 1vw, 0.8rem);
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: var(--content-gap);
+}
+.slide-summary .tag-pill {
+  font-family: var(--font-mono);
+  font-size: var(--label-size);
+  color: var(--accent);
+  padding: clamp(0.4rem, 0.8vw, 0.6rem) clamp(0.8rem, 1.5vw, 1.2rem);
+  border: 1px solid var(--accent-dim);
+  border-radius: 100px;
+  background: var(--accent-dim);
+}
+.slide-summary .summary-text {
+  font-size: var(--body-size);
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: var(--content-gap);
+  line-height: 1.7;
+  max-width: 600px;
+}
+
+/* ===================================================
+   슬라이드 타입: slide-benefits — 장점 카드
+   =================================================== */
+.slide-benefits .benefit-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--element-gap);
+  width: 100%;
+  max-width: 700px;
+  margin-top: var(--content-gap);
+}
+.slide-benefits .benefit-card {
+  background: #080808;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: clamp(0.8rem, 1.5vw, 1.2rem) clamp(1rem, 2vw, 1.5rem);
+  display: flex;
+  align-items: center;
+  gap: clamp(0.8rem, 1.5vw, 1.2rem);
+}
+.slide-benefits .benefit-icon {
+  font-family: var(--font-mono);
+  font-size: var(--h3-size);
+  color: var(--accent);
+  flex-shrink: 0;
+  width: 2.5em;
+  text-align: center;
+}
+.slide-benefits .benefit-text .benefit-title {
+  font-family: var(--font-sans);
+  font-size: var(--body-size);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+.slide-benefits .benefit-text .benefit-desc {
+  font-size: var(--small-size);
+  color: var(--text-secondary);
+}
+
+/* ===================================================
+   슬라이드 타입: slide-cta — 행동 유도 / 마무리
+   =================================================== */
+.slide-cta .cta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(0.5rem, 1.5vw, 1.2rem);
+  width: 100%;
+  max-width: 700px;
+  margin-top: var(--content-gap);
+}
+.slide-cta .cta-card {
+  background: #080808;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  text-align: center;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+.slide-cta .cta-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+.slide-cta .cta-card .cta-icon {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  margin-bottom: var(--element-gap);
+}
+.slide-cta .cta-card .cta-label {
   font-family: var(--font-mono);
   font-size: var(--small-size);
-  color: var(--accent);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: 0.6em;
+  color: var(--text-secondary);
+}
+.slide-cta .cta-msg {
+  font-size: var(--body-size);
+  color: var(--text-dim);
+  margin-top: var(--content-gap);
+  text-align: center;
 }
 
-.two-col ul { width: 100%; }
+/* ===================================================
+   애니메이션: auto-fragment (슬라이드 모드)
+   =================================================== */
+.auto-fragment {
+  opacity: 0;
+  transform: translateY(18px);
+}
+.slide.active .auto-fragment {
+  animation: fragmentIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation-delay: calc(0.3s * var(--i, 0));
+}
 
-/* === 화자 노트 (숨김) === */
-aside.notes { display: none; }
+/* ===================================================
+   애니메이션: reveal 호환 (스크롤 모드 HTML과 호환)
+   =================================================== */
+.reveal {
+  opacity: 0;
+  transform: translateY(25px);
+  transition: opacity 0.7s var(--ease-out-expo),
+              transform 0.7s var(--ease-out-expo);
+}
+.slide.active .reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal:nth-child(1) { transition-delay: 0.1s; }
+.reveal:nth-child(2) { transition-delay: 0.2s; }
+.reveal:nth-child(3) { transition-delay: 0.3s; }
+.reveal:nth-child(4) { transition-delay: 0.4s; }
+.reveal:nth-child(5) { transition-delay: 0.5s; }
+.reveal:nth-child(6) { transition-delay: 0.6s; }
 
-/* === 상단 진행 바 === */
+/* ===================================================
+   UI: 프로그레스 바
+   =================================================== */
 .progress-container {
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 2px;
   z-index: 100;
 }
-
 .progress-bar {
   height: 100%;
   background: var(--accent);
@@ -324,7 +972,9 @@ aside.notes { display: none; }
   box-shadow: 0 0 8px var(--accent-glow);
 }
 
-/* === 슬라이드 카운터 === */
+/* ===================================================
+   UI: 슬라이드 카운터
+   =================================================== */
 .slide-counter {
   position: fixed;
   bottom: 18px; right: 24px;
@@ -335,7 +985,9 @@ aside.notes { display: none; }
   letter-spacing: 0.1em;
 }
 
-/* === 내비게이션 버튼 === */
+/* ===================================================
+   UI: 내비게이션 버튼
+   =================================================== */
 .slide-controls {
   position: fixed;
   bottom: 14px; left: 50%;
@@ -343,7 +995,6 @@ aside.notes { display: none; }
   display: flex; gap: 14px;
   z-index: 100;
 }
-
 .slide-controls button {
   background: rgba(255,255,255,0.04);
   border: 1px solid var(--border);
@@ -354,66 +1005,15 @@ aside.notes { display: none; }
   font-size: 15px;
   transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
-
 .slide-controls button:hover {
   background: var(--accent-dim);
   border-color: var(--accent);
   color: var(--accent);
 }
 
-/* === 슬라이드별 테마 === */
-.slide.theme-title h1 {
-  background: linear-gradient(135deg, var(--text-primary) 40%, var(--accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-@keyframes pulseGlow {
-  0%, 100% { text-shadow: 0 0 20px var(--accent-dim); }
-  50%       { text-shadow: 0 0 50px var(--accent-glow); }
-}
-
-.slide.theme-end h1 { color: var(--accent); }
-.slide.theme-end.active h1 { animation: pulseGlow 3s ease-in-out infinite; }
-
-/* === 라이트 모드 === */
-[data-theme="light"] {
-  --bg:             #f5f5f5;
-  --text-primary:   #1a1a1a;
-  --text-secondary: #555;
-  --text-dim:       #999;
-  --border:         #ddd;
-}
-
-[data-theme="light"] .slide::before {
-  background: repeating-linear-gradient(
-    0deg,
-    transparent, transparent 2px,
-    rgba(0,0,0,0.01) 2px,
-    rgba(0,0,0,0.01) 4px
-  );
-}
-
-[data-theme="light"] .slide::after {
-  background-image:
-    linear-gradient(rgba(56,189,132,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(56,189,132,0.04) 1px, transparent 1px);
-}
-
-[data-theme="light"] .terminal-window {
-  background: #fafafa;
-}
-
-[data-theme="light"] .terminal-bar {
-  background: #eee;
-}
-
-[data-theme="light"] .slide-controls button {
-  background: rgba(0,0,0,0.04);
-}
-
-/* === 테마 토글 버튼 === */
+/* ===================================================
+   UI: 테마 토글
+   =================================================== */
 .theme-toggle {
   position: fixed;
   bottom: 14px; left: 24px;
@@ -431,25 +1031,42 @@ aside.notes { display: none; }
   justify-content: center;
   line-height: 1;
 }
-
 .theme-toggle:hover {
   background: var(--accent-dim);
   border-color: var(--accent);
   color: var(--accent);
 }
 
-[data-theme="light"] .theme-toggle {
-  background: rgba(0,0,0,0.04);
-}
+/* ===================================================
+   화자 노트
+   =================================================== */
+aside.notes { display: none; }
 
-/* === 미디어 쿼리 === */
+/* ===================================================
+   미디어 쿼리
+   =================================================== */
 @media (max-height: 600px) {
   :root { --slide-padding: 1.5rem 3rem; }
+}
+
+@media (max-width: 600px) {
+  .slide-compare .compare-grid { grid-template-columns: 1fr; }
+  .slide-cta .cta-grid { grid-template-columns: 1fr; }
+  .slide-steps .step-flow { flex-direction: column; }
+  .slide-steps .step-arrow { transform: rotate(90deg); }
+  .slide-concept .diagram { flex-direction: column; }
+  .slide-concept .diagram-arrow,
+  .slide-concept .concept-arrow { transform: rotate(90deg); }
+  .slide-concept .concept-flow {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .slide { transition: opacity 0.3s ease; }
   .auto-fragment { animation-duration: 0.3s; }
+  .reveal { transition: opacity 0.3s ease; transform: none; }
 }
 </style>
 </head>
@@ -459,143 +1076,157 @@ aside.notes { display: none; }
   <div class="slides-viewport">
 
     <!-- 슬라이드 1: 타이틀 -->
-    <section class="slide theme-title active" id="slide-1" role="group" aria-roledescription="슬라이드" aria-label="타이틀">
-      <div class="terminal-badge">vanilla presentation</div>
-      <h1>순수 <span class="accent">바닐라</span> 프레젠테이션</h1>
-      <div class="accent-line"></div>
-      <p class="subtitle">HTML + CSS + JavaScript만으로 구현</p>
-      <aside class="notes">오프닝 슬라이드입니다.</aside>
+    <section class="slide slide-title active" id="slide-1" role="group" aria-roledescription="슬라이드" aria-label="타이틀">
+      <div class="slide-content">
+        <div class="terminal-badge">vanilla presentation</div>
+        <div class="big-answer">순수 <span class="accent">바닐라</span><br>프레젠테이션</div>
+        <div class="sub">// HTML + CSS + JavaScript만으로 구현</div>
+      </div>
     </section>
 
     <!-- 슬라이드 2: 왜 바닐라인가 -->
-    <section class="slide theme-content" id="slide-2" role="group" aria-roledescription="슬라이드" aria-label="왜 바닐라인가">
-      <h2>왜 <span class="accent">바닐라</span>인가?</h2>
-      <ul>
-        <li class="auto-fragment" style="--i:0">의존성 <span class="accent">0</span> — 빌드 도구, 번들러, CDN 불필요</li>
-        <li class="auto-fragment" style="--i:1">단일 HTML 파일로 즉시 실행 가능</li>
-        <li class="auto-fragment" style="--i:2">라이브러리 API 변경에 영향받지 않음</li>
-        <li class="auto-fragment" style="--i:3">브라우저 네이티브 기능만으로 충분히 구현 가능</li>
-        <li class="auto-fragment" style="--i:4">완전한 코드 소유권과 커스터마이징 자유</li>
-      </ul>
-      <aside class="notes">바닐라 JS를 선택한 이유를 설명합니다.</aside>
+    <section class="slide slide-features" id="slide-2" role="group" aria-roledescription="슬라이드" aria-label="왜 바닐라인가">
+      <div class="slide-content">
+        <div class="terminal-badge">why vanilla</div>
+        <h2 class="section-title" style="font-size: var(--h2-size);">왜 <span class="accent">바닐라</span>인가?</h2>
+        <ul class="target-list">
+          <li class="auto-fragment" style="--i:0"><span class="num">01</span> 의존성 <span class="accent">0</span> — 빌드 도구, 번들러, CDN 불필요</li>
+          <li class="auto-fragment" style="--i:1"><span class="num">02</span> 단일 HTML 파일로 즉시 실행 가능</li>
+          <li class="auto-fragment" style="--i:2"><span class="num">03</span> 라이브러리 API 변경에 영향받지 않음</li>
+          <li class="auto-fragment" style="--i:3"><span class="num">04</span> 완전한 코드 소유권과 커스터마이징 자유</li>
+        </ul>
+      </div>
     </section>
 
     <!-- 슬라이드 3: 핵심 기능 -->
-    <section class="slide theme-content" id="slide-3" role="group" aria-roledescription="슬라이드" aria-label="핵심 기능">
-      <h2>핵심 기능</h2>
-      <ul>
-        <li class="auto-fragment" style="--i:0">키보드 / 터치 / 클릭 네비게이션</li>
-        <li class="auto-fragment" style="--i:1">GPU 가속 슬라이드 전환 애니메이션</li>
-        <li class="auto-fragment" style="--i:2">진입 시 자동 순차 등장 효과</li>
-        <li class="auto-fragment" style="--i:3">풀스크린 뷰포트 + 반응형 타이포그래피</li>
-        <li class="auto-fragment" style="--i:4">URL hash 동기화 + 상단 프로그레스 바</li>
-      </ul>
-      <aside class="notes">주요 기능을 소개합니다.</aside>
+    <section class="slide slide-features" id="slide-3" role="group" aria-roledescription="슬라이드" aria-label="핵심 기능">
+      <div class="slide-content">
+        <div class="terminal-badge">features</div>
+        <h2 class="section-title" style="font-size: var(--h2-size);">핵심 기능</h2>
+        <ul class="target-list">
+          <li class="auto-fragment" style="--i:0"><span class="num">01</span> 키보드 / 터치 / 클릭 네비게이션</li>
+          <li class="auto-fragment" style="--i:1"><span class="num">02</span> GPU 가속 슬라이드 전환 애니메이션</li>
+          <li class="auto-fragment" style="--i:2"><span class="num">03</span> 자동 순차 등장 효과 (auto-fragment)</li>
+          <li class="auto-fragment" style="--i:3"><span class="num">04</span> URL hash 동기화 + 프로그레스 바</li>
+          <li class="auto-fragment" style="--i:4"><span class="num">05</span> 다크/라이트 테마 전환 (D키)</li>
+        </ul>
+      </div>
     </section>
 
     <!-- 슬라이드 4: 레이아웃 설계 -->
-    <section class="slide theme-content" id="slide-4" role="group" aria-roledescription="슬라이드" aria-label="레이아웃 설계">
-      <h2>레이아웃 설계</h2>
-      <div class="two-col">
-        <div>
-          <div class="col-label">구조</div>
-          <ul>
-            <li class="auto-fragment" style="--i:0"><span class="accent">100vw × 100dvh</span> 풀스크린</li>
-            <li class="auto-fragment" style="--i:1">position: absolute 스택</li>
-            <li class="auto-fragment" style="--i:2">flex 센터 정렬</li>
-          </ul>
-        </div>
-        <div>
-          <div class="col-label">스타일</div>
-          <ul>
-            <li class="auto-fragment" style="--i:3"><span class="accent">clamp()</span> 반응형 폰트</li>
-            <li class="auto-fragment" style="--i:4">CSS 변수 테마 시스템</li>
-            <li class="auto-fragment" style="--i:5">scanline + grid 오버레이</li>
-          </ul>
+    <section class="slide slide-compare" id="slide-4" role="group" aria-roledescription="슬라이드" aria-label="레이아웃 설계">
+      <div class="slide-content">
+        <div class="terminal-badge">layout</div>
+        <h2 class="section-title" style="font-size: var(--h2-size);">레이아웃 설계</h2>
+        <div class="compare-grid">
+          <div class="compare-card auto-fragment" style="--i:0">
+            <div class="card-header">구조</div>
+            <ul class="compare-list">
+              <li><span class="bullet">&gt;</span> <span class="accent">100vw × 100dvh</span> 풀스크린</li>
+              <li><span class="bullet">&gt;</span> position: absolute 스택</li>
+              <li><span class="bullet">&gt;</span> flex 센터 정렬</li>
+            </ul>
+          </div>
+          <div class="compare-card auto-fragment" style="--i:1">
+            <div class="card-header">스타일</div>
+            <ul class="compare-list">
+              <li><span class="bullet">&gt;</span> <span class="accent">clamp()</span> 반응형 폰트</li>
+              <li><span class="bullet">&gt;</span> CSS 변수 테마 시스템</li>
+              <li><span class="bullet">&gt;</span> scanline + grid 오버레이</li>
+            </ul>
+          </div>
         </div>
       </div>
-      <aside class="notes">레이아웃 설계 방식을 설명합니다.</aside>
     </section>
 
     <!-- 슬라이드 5: GPU 가속 코드 -->
-    <section class="slide theme-code" id="slide-5" role="group" aria-roledescription="슬라이드" aria-label="GPU 가속 전환">
-      <h2>GPU 가속 전환</h2>
-      <div class="terminal-window">
-        <div class="terminal-bar">
-          <span class="terminal-dot"></span>
-          <span class="terminal-dot"></span>
-          <span class="terminal-dot"></span>
-        </div>
-        <pre class="code-block"><code><span class="cmt">// Compositor 스레드에서 처리 — Layout/Paint 없음</span></code>
+    <section class="slide slide-code" id="slide-5" role="group" aria-roledescription="슬라이드" aria-label="GPU 가속 전환">
+      <div class="slide-content">
+        <div class="terminal-badge">code</div>
+        <h2 class="section-title" style="font-size: var(--h2-size);">GPU 가속 전환</h2>
+        <div class="terminal-window">
+          <div class="terminal-bar">
+            <span class="terminal-dot"></span>
+            <span class="terminal-dot"></span>
+            <span class="terminal-dot"></span>
+          </div>
+          <pre class="code-block"><code><span class="cmt">// Compositor 스레드에서 처리 — Layout/Paint 없음</span></code>
 <code>.slide {</code>
-<code class="highlight">  transform: translate3d(<span class="num">100%</span>, <span class="num">0</span>, <span class="num">0</span>); <span class="cmt">/* GPU 레이어 활성화 */</span></code>
+<code class="highlight">  transform: translate3d(<span class="num">100%</span>, <span class="num">0</span>, <span class="num">0</span>); <span class="cmt">/* GPU 레이어 */</span></code>
 <code>  opacity: <span class="num">0</span>;</code>
-<code>  transition: transform <span class="num">0.6s</span> cubic-bezier(<span class="num">0.25</span>, <span class="num">0.46</span>, <span class="num">0.45</span>, <span class="num">0.94</span>),</code>
+<code>  transition: transform <span class="num">0.6s</span> ease,</code>
 <code>              opacity <span class="num">0.6s</span> ease;</code>
 <code>}</code>
-<code class="highlight">.slide.active { transform: translate3d(<span class="num">0</span>, <span class="num">0</span>, <span class="num">0</span>); opacity: <span class="num">1</span>; }</code></pre>
+<code class="highlight">.slide.active { transform: translate3d(<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>); opacity: <span class="num">1</span>; }</code></pre>
+        </div>
       </div>
-      <aside class="notes">translate3d와 opacity만 애니메이션하여 GPU 가속을 활용합니다.</aside>
     </section>
 
-    <!-- 슬라이드 6: 전환 원리 -->
-    <section class="slide theme-content" id="slide-6" role="group" aria-roledescription="슬라이드" aria-label="슬라이드 전환 원리">
-      <h2>슬라이드 전환 원리</h2>
-      <div class="two-col">
-        <div>
-          <div class="col-label">잠금 메커니즘</div>
-          <ul>
-            <li class="auto-fragment" style="--i:0"><span class="accent">isAnimating</span> 플래그로 중복 입력 차단</li>
-            <li class="auto-fragment" style="--i:1"><span class="accent">transitionend</span> 이벤트로 완료 감지</li>
-            <li class="auto-fragment" style="--i:2">700ms 안전 타이머 (누락 대비)</li>
-          </ul>
-        </div>
-        <div>
-          <div class="col-label">성능 최적화</div>
-          <ul>
-            <li class="auto-fragment" style="--i:3"><span class="accent">will-change</span> 직전 적용·즉시 해제</li>
-            <li class="auto-fragment" style="--i:4">Forced reflow로 애니메이션 보장</li>
-            <li class="auto-fragment" style="--i:5">인라인 스타일 cleanup 처리</li>
-          </ul>
+    <!-- 슬라이드 6: 전환 원리 다이어그램 -->
+    <section class="slide slide-concept" id="slide-6" role="group" aria-roledescription="슬라이드" aria-label="전환 원리">
+      <div class="slide-content">
+        <div class="terminal-badge">mechanism</div>
+        <h2 class="section-title" style="font-size: var(--h2-size);">슬라이드 전환 원리</h2>
+        <div class="diagram auto-fragment" style="--i:0">
+          <div class="diagram-box">
+            <div class="box-label">입력</div>
+            <div class="box-desc">키보드 / 스와이프</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-box">
+            <div class="box-label">전환</div>
+            <div class="box-desc">translate3d + opacity</div>
+          </div>
+          <div class="diagram-arrow">&rarr;</div>
+          <div class="diagram-box output">
+            <div class="box-label">완료</div>
+            <div class="box-desc">cleanup + unlock</div>
+          </div>
         </div>
       </div>
-      <aside class="notes">전환 메커니즘의 핵심 개념들입니다.</aside>
     </section>
 
-    <!-- 슬라이드 7: 네비게이션 -->
-    <section class="slide theme-content" id="slide-7" role="group" aria-roledescription="슬라이드" aria-label="네비게이션">
-      <h2>네비게이션</h2>
-      <div class="two-col">
-        <div>
-          <div class="col-label">키보드</div>
-          <ul>
-            <li class="auto-fragment" style="--i:0">←→ / ↑↓ / Space</li>
-            <li class="auto-fragment" style="--i:1">PageUp / PageDown</li>
-            <li class="auto-fragment" style="--i:2">Home / End</li>
-          </ul>
-        </div>
-        <div>
-          <div class="col-label">터치 / 기타</div>
-          <ul>
-            <li class="auto-fragment" style="--i:3"><span class="accent">Pointer Events API</span> 우선</li>
-            <li class="auto-fragment" style="--i:4">Touch Events 폴백</li>
-            <li class="auto-fragment" style="--i:5">UI 버튼 + URL hash</li>
-          </ul>
+    <!-- 슬라이드 7: 네비게이션 단계 -->
+    <section class="slide slide-steps" id="slide-7" role="group" aria-roledescription="슬라이드" aria-label="네비게이션">
+      <div class="slide-content">
+        <div class="terminal-badge">workflow</div>
+        <h2 class="section-title" style="font-size: var(--h2-size);">네비게이션 흐름</h2>
+        <div class="step-flow auto-fragment" style="--i:0">
+          <div class="step-item active">
+            <span class="step-num">01</span>
+            이벤트 감지
+          </div>
+          <span class="step-arrow">&rarr;</span>
+          <div class="step-item">
+            <span class="step-num">02</span>
+            잠금 설정
+          </div>
+          <span class="step-arrow">&rarr;</span>
+          <div class="step-item">
+            <span class="step-num">03</span>
+            전환 실행
+          </div>
+          <span class="step-arrow">&rarr;</span>
+          <div class="step-item">
+            <span class="step-num">04</span>
+            cleanup
+          </div>
         </div>
       </div>
-      <aside class="notes">다양한 입력 방식을 지원합니다.</aside>
     </section>
 
     <!-- 슬라이드 8: 코드 예시 -->
-    <section class="slide theme-code" id="slide-8" role="group" aria-roledescription="슬라이드" aria-label="코드 예시">
-      <h2>코드 예시</h2>
-      <div class="terminal-window">
-        <div class="terminal-bar">
-          <span class="terminal-dot"></span>
-          <span class="terminal-dot"></span>
-          <span class="terminal-dot"></span>
-        </div>
-        <pre class="code-block"><code><span class="cmt">// transitionend 완료 감지 + 안전장치</span></code>
+    <section class="slide slide-code" id="slide-8" role="group" aria-roledescription="슬라이드" aria-label="코드 예시">
+      <div class="slide-content">
+        <div class="terminal-badge">code</div>
+        <h2 class="section-title" style="font-size: var(--h2-size);">코드 예시</h2>
+        <div class="terminal-window">
+          <div class="terminal-bar">
+            <span class="terminal-dot"></span>
+            <span class="terminal-dot"></span>
+            <span class="terminal-dot"></span>
+          </div>
+          <pre class="code-block"><code><span class="cmt">// transitionend 완료 감지 + 안전장치</span></code>
 <code><span class="kw">const</span> onEnd = (e) => {</code>
 <code class="highlight">  <span class="kw">if</span> (e.propertyName !== <span class="str">'transform'</span>) <span class="kw">return</span>;</code>
 <code>  clearTimeout(safetyTimer);</code>
@@ -603,48 +1234,56 @@ aside.notes { display: none; }
 <code>};</code>
 <code>to.addEventListener(<span class="str">'transitionend'</span>, onEnd, { once: <span class="kw">true</span> });</code>
 <code class="highlight"><span class="kw">const</span> safetyTimer = setTimeout(cleanup, <span class="num">700</span>);</code></pre>
+        </div>
       </div>
-      <aside class="notes">transitionend 이벤트 처리 코드입니다.</aside>
     </section>
 
-    <!-- 슬라이드 9: 브라우저 호환성 -->
-    <section class="slide theme-content" id="slide-9" role="group" aria-roledescription="슬라이드" aria-label="브라우저 호환성">
-      <h2>브라우저 호환성</h2>
-      <div class="two-col">
-        <div>
-          <div class="col-label">안정 지원</div>
-          <ul>
-            <li class="auto-fragment" style="--i:0">transform / opacity — IE10+</li>
-            <li class="auto-fragment" style="--i:1">CSS 변수 (var()) — IE 제외 전체</li>
-            <li class="auto-fragment" style="--i:2">Pointer Events — Chrome 55+</li>
-          </ul>
+    <!-- 슬라이드 9: 요약 -->
+    <section class="slide slide-summary" id="slide-9" role="group" aria-roledescription="슬라이드" aria-label="정리">
+      <div class="slide-content">
+        <div class="terminal-badge">summary</div>
+        <h2 class="section-title auto-fragment" style="--i:0; font-size: var(--h2-size);">핵심 키워드</h2>
+        <div class="tag-row auto-fragment" style="--i:1">
+          <span class="tag-pill">translate3d</span>
+          <span class="tag-pill">GPU 가속</span>
+          <span class="tag-pill">transitionend</span>
+          <span class="tag-pill">Pointer Events</span>
         </div>
-        <div>
-          <div class="col-label">모던 브라우저</div>
-          <ul>
-            <li class="auto-fragment" style="--i:3">clamp() — Chrome 79+</li>
-            <li class="auto-fragment" style="--i:4">aspect-ratio — Chrome 88+</li>
-            <li class="auto-fragment" style="--i:5">100dvh — Chrome 108+</li>
-          </ul>
-        </div>
+        <p class="summary-text auto-fragment" style="--i:2">
+          외부 라이브러리 없이 순수 HTML, CSS, JavaScript만으로<br>
+          브라우저에서 바로 실행되는 프레젠테이션을 만들 수 있습니다.
+        </p>
       </div>
-      <aside class="notes">주요 기능의 브라우저 지원 범위입니다.</aside>
     </section>
 
     <!-- 슬라이드 10: 마무리 -->
-    <section class="slide theme-end" id="slide-10" role="group" aria-roledescription="슬라이드" aria-label="마무리">
-      <div class="terminal-badge">fin</div>
-      <h1>감사합니다</h1>
-      <div class="accent-line"></div>
-      <p class="subtitle">외부 라이브러리 <span class="accent">0개</span> · 단일 HTML 파일</p>
-      <aside class="notes">마지막 슬라이드입니다.</aside>
+    <section class="slide slide-cta" id="slide-10" role="group" aria-roledescription="슬라이드" aria-label="마무리">
+      <div class="slide-content">
+        <div class="terminal-badge">fin</div>
+        <h2 class="section-title" style="font-size: var(--h2-size);">감사합니다</h2>
+        <div class="cta-grid">
+          <div class="cta-card auto-fragment" style="--i:0">
+            <div class="cta-icon">&#9000;</div>
+            <div class="cta-label">키보드</div>
+          </div>
+          <div class="cta-card auto-fragment" style="--i:1">
+            <div class="cta-icon">&#9757;</div>
+            <div class="cta-label">터치</div>
+          </div>
+          <div class="cta-card auto-fragment" style="--i:2">
+            <div class="cta-icon">&#9734;</div>
+            <div class="cta-label">테마</div>
+          </div>
+        </div>
+        <p class="cta-msg auto-fragment" style="--i:3">외부 라이브러리 <span class="accent">0개</span> · 단일 HTML 파일</p>
+      </div>
     </section>
 
   </div>
 
   <nav class="slide-controls" aria-label="슬라이드 내비게이션">
-    <button class="prev" aria-label="이전 슬라이드">←</button>
-    <button class="next" aria-label="다음 슬라이드">→</button>
+    <button class="prev" aria-label="이전 슬라이드">&#8592;</button>
+    <button class="next" aria-label="다음 슬라이드">&#8594;</button>
   </nav>
 
   <button class="theme-toggle" id="themeToggle" aria-label="다크/라이트 모드 전환" title="다크/라이트 모드 전환 (D)">&#9790;</button>
@@ -653,36 +1292,32 @@ aside.notes { display: none; }
 </main>
 
 <script>
-(() => {
-  'use strict';
+class SlidePresentation {
+  constructor() {
+    this.slides = document.querySelectorAll('.slide');
+    this.total = this.slides.length;
+    this.current = 0;
+    this.isAnimating = false;
 
-  const slides = document.querySelectorAll('.slide');
-  const totalSlides = slides.length;
-  let currentSlide = 0;
-  let isAnimating = false;
+    this.initTheme();
+    this.initFromHash();
+    this.setupKeyboard();
+    this.setupSwipe(document.querySelector('.slides-viewport'));
+    this.setupButtons();
+    this.setupThemeToggle();
+    this.updateUI();
 
-  const TRANSITION_DURATION = 600;
-  const SAFETY_MARGIN = 100;
-
-  function init() {
-    initTheme();
-    initFromHash();
-    setupKeyboard();
-    setupSwipe(document.querySelector('.slides-viewport'));
-    setupButtons();
-    setupThemeToggle();
-    updateUI();
+    window.addEventListener('hashchange', () => this.onHashChange());
   }
 
-  function initTheme() {
+  /* 테마 */
+  initTheme() {
     const saved = localStorage.getItem('slide-theme');
-    if (saved === 'light') {
-      document.documentElement.setAttribute('data-theme', 'light');
-    }
-    updateThemeIcon();
+    if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    this.updateThemeIcon();
   }
 
-  function toggleTheme() {
+  toggleTheme() {
     const isLight = document.documentElement.getAttribute('data-theme') === 'light';
     if (isLight) {
       document.documentElement.removeAttribute('data-theme');
@@ -691,139 +1326,136 @@ aside.notes { display: none; }
       document.documentElement.setAttribute('data-theme', 'light');
       localStorage.setItem('slide-theme', 'light');
     }
-    updateThemeIcon();
+    this.updateThemeIcon();
   }
 
-  function updateThemeIcon() {
+  updateThemeIcon() {
     const btn = document.getElementById('themeToggle');
     if (!btn) return;
     const isLight = document.documentElement.getAttribute('data-theme') === 'light';
     btn.innerHTML = isLight ? '&#9728;' : '&#9790;';
   }
 
-  function setupThemeToggle() {
-    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+  setupThemeToggle() {
+    document.getElementById('themeToggle').addEventListener('click', () => this.toggleTheme());
   }
 
-  function initFromHash() {
+  /* 초기화 */
+  initFromHash() {
     const match = location.hash.match(/^#slide-(\d+)$/);
     if (match) {
       const idx = parseInt(match[1], 10) - 1;
-      if (idx >= 0 && idx < totalSlides) currentSlide = idx;
+      if (idx >= 0 && idx < this.total) this.current = idx;
     }
-    slides.forEach(s => {
+    this.slides.forEach(s => {
       s.classList.remove('active', 'exit-left');
       s.setAttribute('aria-hidden', 'true');
     });
-    slides[currentSlide].classList.add('active');
-    slides[currentSlide].setAttribute('aria-hidden', 'false');
+    this.slides[this.current].classList.add('active');
+    this.slides[this.current].setAttribute('aria-hidden', 'false');
   }
 
-  function goToSlide(index, direction) {
-    if (isAnimating || index < 0 || index >= totalSlides || index === currentSlide) return;
-    isAnimating = true;
+  /* 슬라이드 전환 */
+  goToSlide(index, direction) {
+    if (this.isAnimating || index < 0 || index >= this.total || index === this.current) return;
+    this.isAnimating = true;
 
-    const from = slides[currentSlide];
-    const to = slides[index];
-    const goingForward = direction === undefined ? index > currentSlide : direction === 'forward';
+    const from = this.slides[this.current];
+    const to = this.slides[index];
+    const forward = direction === undefined ? index > this.current : direction === 'forward';
 
     to.style.willChange = 'transform, opacity';
     from.style.willChange = 'transform, opacity';
-
     to.style.transition = 'none';
-    to.style.transform = goingForward ? 'translate3d(100%, 0, 0)' : 'translate3d(-100%, 0, 0)';
+    to.style.transform = forward ? 'translate3d(100%,0,0)' : 'translate3d(-100%,0,0)';
     to.style.opacity = '0';
 
-    void to.offsetHeight;
+    void to.offsetHeight; /* forced reflow */
 
     to.style.transition = '';
     to.classList.add('active');
-    to.style.transform = 'translate3d(0, 0, 0)';
+    to.style.transform = 'translate3d(0,0,0)';
     to.style.opacity = '1';
     to.setAttribute('aria-hidden', 'false');
 
     from.classList.remove('active');
     from.classList.add('exit-left');
-    from.style.transform = goingForward ? 'translate3d(-100%, 0, 0)' : 'translate3d(100%, 0, 0)';
+    from.style.transform = forward ? 'translate3d(-100%,0,0)' : 'translate3d(100%,0,0)';
     from.style.opacity = '0';
     from.setAttribute('aria-hidden', 'true');
 
-    const prevSlide = currentSlide;
-    currentSlide = index;
+    const prev = this.current;
+    this.current = index;
+
+    const cleanup = () => {
+      const p = this.slides[prev];
+      p.classList.remove('exit-left');
+      p.style.transform = '';
+      p.style.opacity = '';
+      p.style.willChange = 'auto';
+      this.slides[this.current].style.transform = '';
+      this.slides[this.current].style.opacity = '';
+      this.slides[this.current].style.willChange = 'auto';
+      this.isAnimating = false;
+    };
 
     const onEnd = (e) => {
       if (e.propertyName !== 'transform') return;
-      clearTimeout(safetyTimer);
-      cleanup(prevSlide);
+      clearTimeout(timer);
+      cleanup();
     };
     to.addEventListener('transitionend', onEnd, { once: true });
-
-    const safetyTimer = setTimeout(() => {
+    const timer = setTimeout(() => {
       to.removeEventListener('transitionend', onEnd);
-      cleanup(prevSlide);
-    }, TRANSITION_DURATION + SAFETY_MARGIN);
+      cleanup();
+    }, 700);
 
-    updateUI();
+    this.updateUI();
   }
 
-  function cleanup(prevIndex) {
-    const prev = slides[prevIndex];
-    prev.classList.remove('exit-left');
-    prev.style.transform = '';
-    prev.style.opacity = '';
-    prev.style.willChange = 'auto';
-    slides[currentSlide].style.transform = '';
-    slides[currentSlide].style.opacity = '';
-    slides[currentSlide].style.willChange = 'auto';
-    isAnimating = false;
-  }
+  next() { this.goToSlide(this.current + 1, 'forward'); }
+  prev() { this.goToSlide(this.current - 1, 'backward'); }
 
-  // 1슬라이드 단위 이동
-  function handleNext() { goToSlide(currentSlide + 1, 'forward'); }
-  function handlePrev() { goToSlide(currentSlide - 1, 'backward'); }
-
-  function setupKeyboard() {
+  /* 키보드 */
+  setupKeyboard() {
     document.addEventListener('keydown', (e) => {
       const tag = e.target.tagName.toLowerCase();
       if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+
       switch (e.key) {
         case 'ArrowRight': case 'ArrowDown': case ' ': case 'PageDown':
-          e.preventDefault(); handleNext(); break;
+          e.preventDefault(); this.next(); break;
         case 'ArrowLeft': case 'ArrowUp': case 'PageUp':
-          e.preventDefault(); handlePrev(); break;
-        case 'Home': e.preventDefault(); goToSlide(0); break;
-        case 'End':  e.preventDefault(); goToSlide(totalSlides - 1); break;
+          e.preventDefault(); this.prev(); break;
+        case 'Home': e.preventDefault(); this.goToSlide(0); break;
+        case 'End': e.preventDefault(); this.goToSlide(this.total - 1); break;
       }
-      if (e.code === 'KeyD') {
-        e.preventDefault();
-        toggleTheme();
-      }
+
+      if (e.code === 'KeyD') { e.preventDefault(); this.toggleTheme(); }
       if (e.code === 'KeyF') {
         e.preventDefault();
-        if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen().catch(() => {});
-        } else {
-          document.exitFullscreen();
-        }
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+        else document.exitFullscreen();
       }
     });
   }
 
-  function setupSwipe(container) {
+  /* 터치 스와이프 */
+  setupSwipe(container) {
     let startX = 0, startY = 0, startTime = 0;
     const THRESHOLD = 50, MAX_TIME = 400, VERTICAL_LIMIT = 80;
 
-    function onStart(x, y) { startX = x; startY = y; startTime = Date.now(); }
-    function onEnd(x, y) {
+    const onStart = (x, y) => { startX = x; startY = y; startTime = Date.now(); };
+    const onEnd = (x, y) => {
       const dx = x - startX, dy = y - startY;
       if (Date.now() - startTime > MAX_TIME || Math.abs(dy) > VERTICAL_LIMIT) return;
-      if (dx > THRESHOLD) handlePrev();
-      else if (dx < -THRESHOLD) handleNext();
-    }
+      if (dx > THRESHOLD) this.prev();
+      else if (dx < -THRESHOLD) this.next();
+    };
 
     if (window.PointerEvent) {
       container.addEventListener('pointerdown', e => onStart(e.clientX, e.clientY));
-      container.addEventListener('pointerup',   e => onEnd(e.clientX, e.clientY));
+      container.addEventListener('pointerup', e => onEnd(e.clientX, e.clientY));
     } else {
       container.addEventListener('touchstart', e => {
         const t = e.changedTouches[0]; onStart(t.clientX, t.clientY);
@@ -838,28 +1470,30 @@ aside.notes { display: none; }
     }, { passive: false });
   }
 
-  function setupButtons() {
-    document.querySelector('.prev').addEventListener('click', handlePrev);
-    document.querySelector('.next').addEventListener('click', handleNext);
+  /* 버튼 */
+  setupButtons() {
+    document.querySelector('.prev').addEventListener('click', () => this.prev());
+    document.querySelector('.next').addEventListener('click', () => this.next());
   }
 
-  function updateUI() {
-    const progress = totalSlides > 1 ? currentSlide / (totalSlides - 1) : 0;
+  /* UI 업데이트 */
+  updateUI() {
+    const progress = this.total > 1 ? this.current / (this.total - 1) : 0;
     document.getElementById('progressBar').style.transform = `scaleX(${progress})`;
-    document.getElementById('slideCounter').textContent = `${currentSlide + 1} / ${totalSlides}`;
-    history.replaceState({ slide: currentSlide }, '', `#slide-${currentSlide + 1}`);
+    document.getElementById('slideCounter').textContent = `${this.current + 1} / ${this.total}`;
+    history.replaceState({ slide: this.current }, '', `#slide-${this.current + 1}`);
   }
 
-  window.addEventListener('hashchange', () => {
+  onHashChange() {
     const match = location.hash.match(/^#slide-(\d+)$/);
     if (match) {
       const idx = parseInt(match[1], 10) - 1;
-      if (idx >= 0 && idx < totalSlides && idx !== currentSlide) goToSlide(idx);
+      if (idx >= 0 && idx < this.total && idx !== this.current) this.goToSlide(idx);
     }
-  });
+  }
+}
 
-  init();
-})();
+new SlidePresentation();
 </script>
 
 </body>

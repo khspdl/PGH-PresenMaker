@@ -1,6 +1,6 @@
 {
   "name": "PGH-PresenMaker",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "순수 HTML/CSS/JS로 웹 프레젠테이션을 생성하는 플러그인. 슬라이드 모드(좌우 전환)와 스크롤 모드(수직 scroll-snap, 14가지 템플릿)를 지원합니다. 외부 라이브러리 없이 단일 HTML 파일로 완성됩니다.",
   "author": {
     "name": "ParkGeonhee"
