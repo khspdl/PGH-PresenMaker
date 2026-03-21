@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스크롤 모드 샘플 — 웹 프레젠테이션 시작하기</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Inter:wght@300;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Inter:wght@300;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"></noscript>
+    <style>
+        /* ===========================================
+           RESET & BASE
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            height: 100%;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        /* ===========================================
+           CSS CUSTOM PROPERTIES
+           =========================================== */
+        :root {
+            --bg: #000000;
+            --accent: #38bd84;
+            --accent-dim: rgba(56, 189, 132, 0.15);
+            --accent-glow: rgba(56, 189, 132, 0.3);
+            --text-primary: #e8e8e8;
+            --text-secondary: #888;
+            --text-dim: #555;
+            --border: #1a1a1a;
+
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Noto Sans KR', 'Inter', sans-serif;
+
+            --title-size: clamp(2rem, 6vw, 5rem);
+            --h2-size: clamp(1.5rem, 4vw, 3rem);
+            --h3-size: clamp(1.2rem, 2.5vw, 1.8rem);
+            --body-size: clamp(0.9rem, 1.5vw, 1.2rem);
+            --label-size: clamp(0.8rem, 1.4vw, 1.1rem);
+            --small-size: clamp(0.7rem, 1vw, 0.85rem);
+
+            --slide-padding: clamp(2rem, 5vw, 5rem);
+            --content-gap: clamp(1rem, 2vw, 2rem);
+            --element-gap: clamp(0.5rem, 1vw, 1rem);
+
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ===========================================
+           LIGHT THEME
+           =========================================== */
+        [data-theme="light"] {
+            --bg: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555;
+            --text-dim: #999;
+            --border: #e0e0e0;
+        }
+
+        [data-theme="light"] body {
+            background: var(--bg);
+            color: var(--text-primary);
+        }
+
+        [data-theme="light"] .slide::before {
+            background: repeating-linear-gradient(0deg,
+                transparent, transparent 2px,
+                rgba(0, 0, 0, 0.01) 2px,
+                rgba(0, 0, 0, 0.01) 4px);
+        }
+
+        [data-theme="light"] .slide::after {
+            background-image:
+                linear-gradient(rgba(56, 189, 132, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 132, 0.04) 1px, transparent 1px);
+        }
+
+        [data-theme="light"] .terminal-window,
+        [data-theme="light"] .dark-card,
+        [data-theme="light"] .slide-compare .compare-card,
+        [data-theme="light"] .slide-steps .step-item,
+        [data-theme="light"] .slide-features .target-list li,
+        [data-theme="light"] .feature-list li,
+        [data-theme="light"] .slide-benefits .benefit-card,
+        [data-theme="light"] .slide-concept .diagram-box,
+        [data-theme="light"] .slide-concept .concept-card,
+        [data-theme="light"] .slide-before-after .comparison-card,
+        [data-theme="light"] .slide-before-after .result-card,
+        [data-theme="light"] .slide-result .result-card,
+        [data-theme="light"] .slide-prompt .prompt-card,
+        [data-theme="light"] .slide-promo .review-card,
+        [data-theme="light"] .slide-promo .cta-card,
+        [data-theme="light"] .slide-cta .cta-card,
+        [data-theme="light"] .slide-diagram .main-agent,
+        [data-theme="light"] .slide-diagram .sub-agent,
+        [data-theme="light"] .slide-diagram .key-point,
+        [data-theme="light"] .quote-bubble {
+            background: #fafafa;
+        }
+
+        [data-theme="light"] .terminal-bar {
+            background: #eee;
+        }
+
+        [data-theme="light"] .theme-toggle {
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        [data-theme="light"] .slide-summary .tag-pill {
+            background: rgba(56, 189, 132, 0.08);
+        }
+
+        /* ===========================================
+           SLIDE BASE
+           =========================================== */
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: var(--slide-padding);
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            max-height: 100%;
+            overflow: hidden;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        /* ===========================================
+           GLOBAL BACKGROUND EFFECTS
+           =========================================== */
+        .slide::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(0deg,
+                transparent, transparent 2px,
+                rgba(255, 255, 255, 0.005) 2px,
+                rgba(255, 255, 255, 0.005) 4px);
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .slide::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(56, 189, 132, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 132, 0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        /* ===========================================
+           SLIDE NUMBER (hidden)
+           =========================================== */
+        .slide-number {
+            display: none;
+        }
+
+        /* ===========================================
+           ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(25px);
+            transition: opacity 0.7s var(--ease-out-expo),
+                        transform 0.7s var(--ease-out-expo);
+        }
+
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .reveal:nth-child(5) { transition-delay: 0.5s; }
+        .reveal:nth-child(6) { transition-delay: 0.6s; }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        @keyframes lineGrow {
+            from { width: 0; opacity: 0; }
+            to { width: 60px; opacity: 1; }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 10px var(--accent-dim); }
+            50% { box-shadow: 0 0 25px var(--accent-glow); }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===========================================
+           REUSABLE COMPONENTS
+           =========================================== */
+
+        /* 터미널 배지 */
+        .terminal-badge {
+            font-family: var(--font-mono);
+            font-size: var(--label-size);
+            color: var(--accent);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: var(--content-gap);
+        }
+
+        .terminal-badge::before {
+            content: '>';
+            animation: blink 1s step-end infinite;
+        }
+
+        /* 섹션 제목 */
+        .section-title {
+            font-family: var(--font-sans);
+            font-size: var(--title-size);
+            font-weight: 700;
+            line-height: 1.1;
+            text-align: center;
+        }
+
+        .section-title .accent { color: var(--accent); }
+
+        /* 구분선 */
+        .accent-line {
+            width: 60px;
+            height: 2px;
+            background: var(--accent);
+            margin: var(--content-gap) auto;
+        }
+
+        /* 설명 텍스트 */
+        .desc {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            text-align: center;
+            line-height: 1.7;
+            max-width: 700px;
+        }
+
+        /* 인용 버블 */
+        .quote-bubble {
+            font-family: var(--font-mono);
+            font-size: var(--body-size);
+            color: var(--text-primary);
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            padding: clamp(0.8rem, 1.5vw, 1.2rem) clamp(1rem, 2vw, 1.5rem);
+            border-radius: 4px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* 다크 카드 */
+        .dark-card {
+            background: #080808;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: clamp(1.2rem, 2.5vw, 2rem);
+        }
+
+        /* 터미널 윈도우 */
+        .terminal-window {
+            background: #0a0a0a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 700px;
+            overflow: hidden;
+            margin-top: var(--content-gap);
+        }
+
+        .terminal-bar {
+            background: #111;
+            padding: clamp(0.4rem, 0.8vw, 0.6rem) clamp(0.8rem, 1.2vw, 1rem);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .terminal-body {
+            padding: clamp(1rem, 2vw, 1.5rem);
+            font-family: var(--font-mono);
+            font-size: var(--body-size);
+        }
+
+        .prompt-line {
+            color: var(--text-dim);
+            line-height: 1.8;
+        }
+
+        .prompt-line:last-child { margin-bottom: 0; }
+        .prompt-line .prompt { color: var(--accent); }
+        .prompt-line .cmd { color: var(--text-primary); }
+        .prompt-line .string { color: var(--text-secondary); }
+
+        .cursor-blink {
+            display: inline-block;
+            width: 8px;
+            height: 1.1em;
+            background: var(--accent);
+            vertical-align: text-bottom;
+            animation: blink 1s step-end infinite;
+            margin-left: 2px;
+        }
+
+        .terminal-body .success { color: var(--accent); }
+        .terminal-body .indent { padding-left: 1.5em; }
+
+        /* 피처 리스트 */
+        .feature-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: var(--element-gap);
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .feature-list li {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            padding: clamp(0.6rem, 1vw, 0.8rem) clamp(1rem, 1.5vw, 1.2rem);
+            background: #050505;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: clamp(0.5rem, 1vw, 0.8rem);
+        }
+
+        .feature-list li .icon {
+            color: var(--accent);
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            flex-shrink: 0;
+        }
+
+        /* ===========================================
+           SLIDE TYPE: slide-title
+           — 메인 타이틀 슬라이드
+           =========================================== */
+        .slide-title .big-answer {
+            font-family: var(--font-sans);
+            font-size: clamp(2.5rem, 7vw, 6rem);
+            font-weight: 900;
+            text-align: center;
+            line-height: 1.05;
+        }
+
+        .slide-title .big-answer .accent { color: var(--accent); }
+
+        .slide-title .sub {
+            font-family: var(--font-mono);
+            font-size: var(--label-size);
+            color: var(--text-dim);
+            margin-top: var(--content-gap);
+        }
+
+        /* ===========================================
+           SLIDE TYPE: slide-transition
+           — 섹션 전환 타이틀
+           =========================================== */
+        .slide-transition .big-title {
+            font-family: var(--font-sans);
+            font-size: clamp(2.5rem, 7vw, 6rem);
+            font-weight: 900;
+            text-align: center;
+            line-height: 1.05;
+        }
+
+        .slide-transition .big-title .accent { color: var(--accent); }
+
+        .slide-transition .sub,
+        .slide-transition .subtitle {
+            font-family: var(--font-mono);
+            font-size: var(--label-size);
+            color: var(--text-dim);
+            margin-top: var(--content-gap);
+            text-align: center;
+        }
+
+        /* ===========================================
+           SLIDE TYPE: slide-features
+           — 번호 매긴 기능/타겟 목록
+           =========================================== */
+        .slide-features .target-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.6rem, 1.2vw, 1rem);
+            width: 100%;
+            max-width: 700px;
+            margin-top: var(--content-gap);
+        }
+
+        .slide-features .target-list li {
+            font-size: var(--body-size);
+            color: var(--text-primary);
+            padding: clamp(0.8rem, 1.2vw, 1rem) clamp(1rem, 2vw, 1.5rem);
+            background: #050505;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: clamp(0.5rem, 1vw, 0.8rem);
+        }
+
+        .slide-features .target-list li .num {
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--accent);
+            flex-shrink: 0;
+            width: 2em;
+        }
+
+        /* ===========================================
+           SLIDE TYPE: slide-concept
+           — 다이어그램 기반 개념 설명
+           =========================================== */
+        /* 스타일 A: diagram (화살표 연결 박스) */
+        .slide-concept .diagram {
+            display: flex;
+            align-items: center;
+            gap: clamp(1rem, 3vw, 2.5rem);
+            margin-top: var(--content-gap);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .slide-concept .diagram-box {
+            background: #080808;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: clamp(1rem, 2vw, 1.5rem) clamp(1.5rem, 3vw, 2.5rem);
+            text-align: center;
+            min-width: 160px;
+        }
+
+        .slide-concept .diagram-box .box-label {
+            font-family: var(--font-mono);
+            font-size: var(--label-size);
+            color: var(--accent);
+            margin-bottom: 0.3rem;
+        }
+
+        .slide-concept .diagram-box .box-desc {
+            font-size: var(--small-size);
+            color: var(--text-dim);
+        }
+
+        .slide-concept .diagram-box.output {
+            border-color: var(--accent);
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+
+        .slide-concept .diagram-arrow {
+            font-family: var(--font-mono);
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            color: var(--accent);
+        }
+
+        /* 스타일 B: concept-flow (카드 흐름) */
+        .slide-concept .concept-flow {
+            display: flex;
+            align-items: stretch;
+            gap: clamp(0.4rem, 1vw, 1rem);
+            margin-top: var(--content-gap);
+            flex-wrap: nowrap;
+            justify-content: center;
+            width: 100%;
+            max-width: 850px;
+        }
+
+        .slide-concept .concept-card {
+            background: #080808;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: clamp(0.8rem, 1.5vw, 1.2rem);
+            flex: 1;
+            min-width: 0;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.3rem, 0.5vw, 0.5rem);
+        }
+
+        .slide-concept .concept-card .card-label {
+            font-family: var(--font-mono);
+            font-size: var(--h3-size);
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .slide-concept .concept-card .card-desc {
+            font-size: var(--small-size);
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .slide-concept .concept-arrow {
+            color: var(--accent);
+            font-size: var(--h3-size);
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        /* ===========================================
+           SLIDE TYPE: slide-steps
+           — 단계별 플로우
+           =========================================== */
+        .slide-steps .step-flow {
+            display: flex;
+            align-items: center;
+            gap: clamp(0.5rem, 1.5vw, 1.5rem);
+            margin-top: var(--content-gap);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .slide-steps .step-item {
+            font-family: var(--font-mono);
+            font-size: var(--label-size);
+            color: var(--text-primary);
+            padding: clamp(0.8rem, 1.5vw, 1.2rem) clamp(1.2rem, 2vw, 1.8rem);
+            background: #080808;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .slide-steps .step-item.active {
+            border-color: var(--accent);
+            background: rgba(56, 189, 132, 0.05);
+            color: var(--accent);
+        }
+
+        .slide-steps .step-item .step-num {
+            font-size: var(--small-size);
+            color: var(--text-dim);
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+
+        .slide-steps .step-item.active .step-num {
+            color: var(--accent-glow);
+        }
+
+        .slide-steps .step-arrow {
+            color: var(--accent);
+            font-size: var(--body-size);
+        }
+
+        /* ===========================================
+           SLIDE TYPE: slide-compare
+           — 2열 비교 그리드
+           =========================================== */
+        .slide-compare .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(0.8rem, 2vw, 1.5rem);
+            width: 100%;
+            max-width: 750px;
+            margin-top: var(--content-gap);
+        }
+
+        .slide-compare .compare-card {
+            background: #080808;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: clamp(1rem, 2vw, 1.5rem);
+        }
+
+        .slide-compare .compare-card .card-header {
+            font-family: var(--font-mono);
+            font-size: var(--label-size);
+            color: var(--accent);
+            margin-bottom: var(--element-gap);
+            padding-bottom: var(--element-gap);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .slide-compare .compare-card .compare-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.3rem, 0.6vw, 0.5rem);
+        }
+
+        .slide-compare .compare-card .compare-list li {
+            font-size: var(--small-size);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .slide-compare .compare-card .compare-list li .bullet {
+            color: var(--accent);
+            font-family: var(--font-mono);
+            flex-shrink: 0;
+        }
+
+        /* ===========================================
+           SLIDE TYPE: slide-diagram
+           — 에이전트/구조 다이어그램
+           =========================================== */
+        .slide-diagram .agent-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(0.8rem, 1.5vw, 1.2rem);
+            margin-top: var(--content-gap);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .slide-diagram .main-agent {
+            background: #080808;
+            border: 2px solid var(--accent);
+            border-radius: 8px;
+            padding: clamp(0.8rem, 1.5vw, 1.2rem) clamp(1.5rem, 3vw, 2.5rem);
+            font-family: var(--font-mono);
+            font-size: var(--label-size);
+            color: var(--accent);
+            text-align: center;
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+
+        .slide-diagram .arrows-row {
+            display: flex;
+            justify-content: center;
+            gap: clamp(2rem, 6vw, 5rem);
+            color: var(--accent);
+            font-size: var(--body-size);
+        }
+
+        .slide-diagram .sub-agents {
+            display: flex;
+            gap: clamp(0.5rem, 1.5vw, 1.2rem);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .slide-diagram .sub-agent {
+            background: #080808;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: clamp(0.6rem, 1vw, 0.8rem) clamp(1rem, 1.5vw, 1.2rem);
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .slide-diagram .key-point {
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--text-dim);
+            margin-top: var(--element-gap);
+            text-align: center;
+            padding: clamp(0.5rem, 1vw, 0.8rem) clamp(1rem, 2vw, 1.5rem);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: #050505;
+        }
+
+        /* ===========================================
+           SLIDE TYPE: slide-before-after
+           — Before/After 비교 카드
+           =========================================== */
+        .slide-before-after .comparison-card {
+            background: #080808;
+            border: 1px solid #1f1f1f;
+            border-radius: 8px;
+            padding: clamp(1.2rem, 2.5vw, 2rem);
+            width: 100%;
+            max-width: 650px;
+            margin-top: var(--content-gap);
+        }
+
+        .slide-before-after .comparison-card .card-title {
+            font-family: var(--font-mono);
+            font-size: var(--label-size);
+            color: var(--text-dim);
+            margin-bottom: var(--element-gap);
+        }
+
+        .slide-before-after .pain-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.4rem, 0.8vw, 0.6rem);
+        }
+
+        .slide-before-after .pain-list li {
+            font-size: var(--body-size);
+            color: #cc6666;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .slide-before-after .pain-list li .x {
+            font-family: var(--font-mono);
+            color: #cc6666;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .slide-before-after .result-card {
+            background: #080808;
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: clamp(1.5rem, 3vw, 2.5rem);
+            width: 100%;
+            max-width: 650px;
+            text-align: center;
+            margin-top: var(--content-gap);
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+
+        .slide-before-after .result-card .check {
+            font-size: clamp(2rem, 4vw, 3rem);
+            color: var(--accent);
+            margin-bottom: var(--element-gap);
+        }
+
+        .slide-before-after .result-card .result-title {
+            font-family: var(--font-sans);
+            font-size: var(--h3-size);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--element-gap);
+        }
+
+        .slide-before-after .result-tags {
+            display: flex;
+            gap: clamp(0.3rem, 0.8vw, 0.6rem);
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .slide-before-after .result-tag {
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--accent);
+            padding: 0.3em 0.7em;
+            border: 1px solid var(--accent-dim);
+            border-radius: 100px;
+        }
+
+        /* ===========================================
+           SLIDE TYPE: slide-terminal
+           — 터미널 명령어 표시
+           =========================================== */
+        /* 공유 .terminal-window 컴포넌트 스타일을 사용 */
+
+        /* ===========================================
+           SLIDE TYPE: slide-result
+           — 결과 카드 (체크 리스트)
+           =========================================== */
+        .slide-result .result-card {
+            background: #080808;
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: clamp(1.5rem, 3vw, 2.5rem);
+            width: 100%;
+            max-width: 650px;
+            margin-top: var(--content-gap);
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+
+        .slide-result .result-card .result-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(0.5rem, 1vw, 0.8rem);
+        }
+
+        .slide-result .result-card .result-list li {
+            font-size: var(--body-size);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .slide-result .result-card .result-list li .check {
+            color: var(--accent);
+            font-family: var(--font-mono);
+            flex-shrink: 0;
+        }
+
+        /* ===========================================
+           SLIDE TYPE: slide-prompt
+           — 프롬프트/질문 카드
+           =========================================== */
+        .slide-prompt .prompt-card {
+            background: #080808;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: clamp(1.2rem, 2.5vw, 2rem);
+            width: 100%;
+            max-width: 650px;
+            margin-top: var(--content-gap);
+            text-align: center;
+        }
+
+        .slide-prompt .prompt-card .card-text {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* ===========================================
+           SLIDE TYPE: slide-summary
+           — 태그 기반 요약
+           =========================================== */
+        .slide-summary .tag-row {
+            display: flex;
+            gap: clamp(0.4rem, 1vw, 0.8rem);
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: var(--content-gap);
+        }
+
+        .slide-summary .tag-pill {
+            font-family: var(--font-mono);
+            font-size: var(--label-size);
+            color: var(--accent);
+            padding: clamp(0.4rem, 0.8vw, 0.6rem) clamp(0.8rem, 1.5vw, 1.2rem);
+            border: 1px solid var(--accent-dim);
+            border-radius: 100px;
+            background: var(--accent-dim);
+        }
+
+        .slide-summary .summary-text {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: var(--content-gap);
+            line-height: 1.7;
+            max-width: 600px;
+        }
+
+        /* ===========================================
+           SLIDE TYPE: slide-benefits
+           — 장점/특징 카드 리스트
+           =========================================== */
+        .slide-benefits .benefit-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--element-gap);
+            width: 100%;
+            max-width: 700px;
+            margin-top: var(--content-gap);
+        }
+
+        .slide-benefits .benefit-card {
+            background: #080808;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: clamp(0.8rem, 1.5vw, 1.2rem) clamp(1rem, 2vw, 1.5rem);
+            display: flex;
+            align-items: center;
+            gap: clamp(0.8rem, 1.5vw, 1.2rem);
+        }
+
+        .slide-benefits .benefit-icon {
+            font-family: var(--font-mono);
+            font-size: var(--h3-size);
+            color: var(--accent);
+            flex-shrink: 0;
+            width: 2.5em;
+            text-align: center;
+        }
+
+        .slide-benefits .benefit-text .benefit-title {
+            font-family: var(--font-sans);
+            font-size: var(--body-size);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.2rem;
+        }
+
+        .slide-benefits .benefit-text .benefit-desc {
+            font-size: var(--small-size);
+            color: var(--text-secondary);
+        }
+
+        /* ===========================================
+           SLIDE TYPE: slide-cta
+           — CTA 그리드
+           =========================================== */
+        .slide-cta .cta-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(0.5rem, 1.5vw, 1.2rem);
+            width: 100%;
+            max-width: 700px;
+            margin-top: var(--content-gap);
+        }
+
+        .slide-cta .cta-card {
+            background: #080808;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: clamp(1rem, 2vw, 1.5rem);
+            text-align: center;
+            transition: border-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .slide-cta .cta-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .slide-cta .cta-card .cta-icon {
+            font-size: clamp(1.5rem, 3vw, 2.2rem);
+            margin-bottom: var(--element-gap);
+        }
+
+        .slide-cta .cta-card .cta-label {
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--text-secondary);
+        }
+
+        .slide-cta .cta-msg {
+            font-size: var(--body-size);
+            color: var(--text-dim);
+            margin-top: var(--content-gap);
+            text-align: center;
+        }
+
+        /* ===========================================
+           SLIDE TYPE: slide-promo
+           — 리뷰/홍보 카드
+           =========================================== */
+        .slide-promo .review-cards {
+            display: flex;
+            flex-direction: column;
+            gap: var(--element-gap);
+            width: 100%;
+            max-width: 700px;
+            margin-top: var(--content-gap);
+        }
+
+        .slide-promo .review-card {
+            background: #080808;
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 4px;
+            padding: clamp(0.8rem, 1.5vw, 1.2rem) clamp(1rem, 2vw, 1.5rem);
+        }
+
+        .slide-promo .review-card .review-text {
+            font-size: var(--body-size);
+            color: var(--text-primary);
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        .slide-promo .review-card .review-author {
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--text-dim);
+            margin-top: 0.4rem;
+        }
+
+        .slide-promo .promo-desc {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.7;
+            margin-top: var(--element-gap);
+        }
+
+        .slide-promo .promo-note {
+            font-size: var(--body-size);
+            color: var(--text-dim);
+            margin-top: var(--content-gap);
+            text-align: center;
+        }
+
+        .slide-promo .cta-card {
+            background: #080808;
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: clamp(1.2rem, 2.5vw, 2rem) clamp(1.5rem, 3vw, 2.5rem);
+            width: 100%;
+            max-width: 550px;
+            text-align: center;
+            margin-top: var(--content-gap);
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+
+        .slide-promo .cta-card .cta-label {
+            font-family: var(--font-sans);
+            font-size: var(--h3-size);
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .slide-promo .cta-card .cta-sub {
+            font-family: var(--font-mono);
+            font-size: var(--small-size);
+            color: var(--accent);
+            margin-top: var(--element-gap);
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: var(--accent);
+            width: 0%;
+            z-index: 100;
+            transition: width 0.3s ease;
+        }
+
+        /* ===========================================
+           NAV DOTS (hidden)
+           =========================================== */
+        .nav-dots {
+            display: none;
+        }
+
+        /* ===========================================
+           THEME TOGGLE
+           =========================================== */
+        .theme-toggle {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            z-index: 50;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: border-color 0.3s ease, background 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--accent);
+        }
+
+        /* ===========================================
+           RESPONSIVE
+           =========================================== */
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(1.5rem, 3vw, 3rem);
+                --content-gap: clamp(0.6rem, 1.5vw, 1.2rem);
+                --title-size: clamp(1.8rem, 5vw, 3.5rem);
+            }
+        }
+
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(1rem, 2.5vw, 2rem);
+                --content-gap: clamp(0.4rem, 1vw, 0.8rem);
+                --title-size: clamp(1.5rem, 4.5vw, 2.5rem);
+                --body-size: clamp(0.75rem, 1.2vw, 1rem);
+            }
+            .nav-dots { display: none; }
+        }
+
+        @media (max-height: 500px) {
+            :root {
+                --slide-padding: clamp(0.8rem, 2vw, 1.5rem);
+                --title-size: clamp(1.2rem, 4vw, 2rem);
+                --body-size: clamp(0.65rem, 1vw, 0.85rem);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .slide-compare .compare-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .slide-cta .cta-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .slide-steps .step-flow {
+                flex-direction: column;
+            }
+
+            .slide-steps .step-arrow {
+                transform: rotate(90deg);
+            }
+
+            .slide-concept .diagram {
+                flex-direction: column;
+            }
+
+            .slide-concept .diagram-arrow,
+            .slide-concept .concept-arrow {
+                transform: rotate(90deg);
+            }
+
+            .slide-concept .concept-flow {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal {
+                transition: opacity 0.3s ease;
+                transform: none;
+            }
+            html { scroll-behavior: auto; }
+            .cursor-blink, .terminal-badge::before, .spinner {
+                animation: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 프로그레스 바 -->
+    <div class="progress-bar"></div>
+
+    <!-- 네비게이션 닷 -->
+    <nav class="nav-dots" aria-label="슬라이드 내비게이션"></nav>
+
+    <!-- 테마 토글 버튼 -->
+    <button class="theme-toggle" id="themeToggle" aria-label="테마 전환">&#9790;</button>
+
+    <!-- ============================================
+         SLIDE 1: 메인 타이틀
+         ============================================ -->
+    <section class="slide slide-title">
+        <span class="slide-number">01 / 08</span>
+        <div class="slide-content">
+            <div class="terminal-badge reveal">sample presentation</div>
+
+            <div class="big-answer reveal">
+                <span class="accent">웹 프레젠테이션</span><br>시작하기
+            </div>
+
+            <div class="sub reveal">// 순수 HTML, CSS, JS로 만드는 슬라이드</div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 2: 주요 기능 목록
+         ============================================ -->
+    <section class="slide slide-features">
+        <span class="slide-number">02 / 08</span>
+        <div class="slide-content">
+            <div class="terminal-badge reveal">주요 기능</div>
+
+            <h2 class="section-title reveal" style="font-size: var(--h2-size);">
+                이런 것들이 <span class="accent">가능</span>합니다
+            </h2>
+
+            <ul class="target-list">
+                <li class="reveal">
+                    <span class="num">01</span>
+                    수직 스크롤 스냅 네비게이션
+                </li>
+                <li class="reveal">
+                    <span class="num">02</span>
+                    IntersectionObserver 기반 등장 애니메이션
+                </li>
+                <li class="reveal">
+                    <span class="num">03</span>
+                    다크/라이트 테마 전환
+                </li>
+                <li class="reveal">
+                    <span class="num">04</span>
+                    반응형 디자인 + 접근성
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 3: 개념 다이어그램
+         ============================================ -->
+    <section class="slide slide-concept">
+        <span class="slide-number">03 / 08</span>
+        <div class="slide-content">
+            <div class="terminal-badge reveal">작동 원리</div>
+
+            <h2 class="section-title reveal" style="font-size: var(--h2-size);">
+                <span class="accent">스크롤</span>이 슬라이드를 넘긴다
+            </h2>
+
+            <div class="diagram reveal">
+                <div class="diagram-box">
+                    <div class="box-label">스크롤</div>
+                    <div class="box-desc">scroll-snap</div>
+                </div>
+                <div class="diagram-arrow">&rarr;</div>
+                <div class="diagram-box">
+                    <div class="box-label">감지</div>
+                    <div class="box-desc">IntersectionObserver</div>
+                </div>
+                <div class="diagram-arrow">&rarr;</div>
+                <div class="diagram-box output">
+                    <div class="box-label">애니메이션</div>
+                    <div class="box-desc">.reveal 트리거</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 4: 터미널 명령어
+         ============================================ -->
+    <section class="slide slide-terminal">
+        <span class="slide-number">04 / 08</span>
+        <div class="slide-content">
+            <div class="terminal-badge reveal">사용법</div>
+
+            <h2 class="section-title reveal" style="font-size: var(--h2-size);">
+                <span class="accent">한 줄</span>이면 충분합니다
+            </h2>
+
+            <div class="terminal-window reveal">
+                <div class="terminal-bar">
+                    <div class="terminal-dot" style="background: #ff5f57;"></div>
+                    <div class="terminal-dot" style="background: #febc2e;"></div>
+                    <div class="terminal-dot" style="background: #28c840;"></div>
+                </div>
+                <div class="terminal-body">
+                    <div class="prompt-line">
+                        <span class="prompt">&gt; </span>
+                        <span class="cmd">"스크롤 프레젠테이션 만들어줘"</span>
+                    </div>
+                    <div class="prompt-line success">&#10003; HTML 생성 완료</div>
+                    <div class="prompt-line success">&#10003; 브라우저에서 열기</div>
+                    <span class="cursor-blink"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 5: 단계 플로우
+         ============================================ -->
+    <section class="slide slide-steps">
+        <span class="slide-number">05 / 08</span>
+        <div class="slide-content">
+            <div class="terminal-badge reveal">워크플로우</div>
+
+            <h2 class="section-title reveal" style="font-size: var(--h2-size);">
+                <span class="accent">3단계</span>로 완성
+            </h2>
+
+            <div class="step-flow reveal">
+                <div class="step-item active">
+                    <span class="step-num">01</span>
+                    주제 정리
+                </div>
+                <span class="step-arrow">&rarr;</span>
+                <div class="step-item">
+                    <span class="step-num">02</span>
+                    슬라이드 생성
+                </div>
+                <span class="step-arrow">&rarr;</span>
+                <div class="step-item">
+                    <span class="step-num">03</span>
+                    브라우저 확인
+                </div>
+            </div>
+
+            <p class="desc reveal" style="margin-top: var(--content-gap);">
+                프롬프트 하나로 전체 프레젠테이션이 만들어집니다
+            </p>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 6: 비교
+         ============================================ -->
+    <section class="slide slide-compare">
+        <span class="slide-number">06 / 08</span>
+        <div class="slide-content">
+            <div class="terminal-badge reveal">비교</div>
+
+            <h2 class="section-title reveal" style="font-size: var(--h2-size);">
+                두 가지 <span class="accent">모드</span>
+            </h2>
+
+            <div class="compare-grid">
+                <div class="compare-card reveal">
+                    <div class="card-header">슬라이드 모드</div>
+                    <ul class="compare-list">
+                        <li><span class="bullet">&gt;</span> 좌우 전환 애니메이션</li>
+                        <li><span class="bullet">&gt;</span> 발표/컨퍼런스용</li>
+                        <li><span class="bullet">&gt;</span> 슬라이드 카운터</li>
+                        <li><span class="bullet">&gt;</span> 터치 스와이프</li>
+                    </ul>
+                </div>
+                <div class="compare-card reveal">
+                    <div class="card-header">스크롤 모드</div>
+                    <ul class="compare-list">
+                        <li><span class="bullet">&gt;</span> 수직 스크롤 스냅</li>
+                        <li><span class="bullet">&gt;</span> 교육/튜토리얼용</li>
+                        <li><span class="bullet">&gt;</span> 프로그레스 바</li>
+                        <li><span class="bullet">&gt;</span> .reveal 등장 효과</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 7: 요약
+         ============================================ -->
+    <section class="slide slide-summary">
+        <span class="slide-number">07 / 08</span>
+        <div class="slide-content">
+            <div class="terminal-badge reveal">정리</div>
+
+            <h2 class="section-title reveal" style="font-size: var(--h2-size);">
+                핵심 키워드
+            </h2>
+
+            <div class="tag-row reveal">
+                <span class="tag-pill">scroll-snap</span>
+                <span class="tag-pill">IntersectionObserver</span>
+                <span class="tag-pill">.reveal</span>
+                <span class="tag-pill">단일 HTML</span>
+            </div>
+
+            <p class="summary-text reveal">
+                외부 라이브러리 없이 순수 HTML, CSS, JavaScript만으로<br>
+                브라우저에서 바로 실행되는 프레젠테이션을 만들 수 있습니다.
+            </p>
+        </div>
+    </section>
+
+    <!-- ============================================
+         SLIDE 8: CTA
+         ============================================ -->
+    <section class="slide slide-cta">
+        <span class="slide-number">08 / 08</span>
+        <div class="slide-content">
+            <div class="terminal-badge reveal">감사합니다</div>
+
+            <h2 class="section-title reveal" style="font-size: var(--h2-size);">
+                지금 바로 <span class="accent">시작</span>하세요
+            </h2>
+
+            <div class="cta-grid">
+                <div class="cta-card reveal">
+                    <div class="cta-icon">&#128187;</div>
+                    <div class="cta-label">설치</div>
+                </div>
+                <div class="cta-card reveal">
+                    <div class="cta-icon">&#9997;</div>
+                    <div class="cta-label">생성</div>
+                </div>
+                <div class="cta-card reveal">
+                    <div class="cta-icon">&#127891;</div>
+                    <div class="cta-label">발표</div>
+                </div>
+            </div>
+
+            <p class="cta-msg reveal">D키로 테마 전환, F키로 풀스크린</p>
+        </div>
+    </section>
+
+    <!-- ============================================
+       JAVASCRIPT — Navigation & Animations
+       ============================================ -->
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.progressBar = document.querySelector('.progress-bar');
+                this.navContainer = document.querySelector('.nav-dots');
+                this.currentSlide = 0;
+
+                this.createNavDots();
+                this.setupIntersectionObserver();
+                this.setupKeyboardNav();
+                this.setupScrollTracking();
+                this.setupThemeToggle();
+                this.initTheme();
+            }
+
+            createNavDots() {
+                this.slides.forEach((_, i) => {
+                    const dot = document.createElement('button');
+                    dot.classList.add('nav-dot');
+                    dot.setAttribute('aria-label', `슬라이드 ${i + 1}로 이동`);
+                    if (i === 0) dot.classList.add('active');
+                    dot.addEventListener('click', () => {
+                        this.slides[i].scrollIntoView({ behavior: 'smooth' });
+                    });
+                    this.navContainer.appendChild(dot);
+                });
+                this.navDots = document.querySelectorAll('.nav-dot');
+            }
+
+            setupIntersectionObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const index = Array.from(this.slides).indexOf(entry.target);
+                            this.currentSlide = index;
+                            this.updateNav(index);
+                        }
+                    });
+                }, { threshold: 0.5 });
+
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    switch (e.key) {
+                        case 'ArrowDown':
+                        case 'ArrowRight':
+                        case ' ':
+                            e.preventDefault();
+                            this.goToSlide(this.currentSlide + 1);
+                            break;
+                        case 'ArrowUp':
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            this.goToSlide(this.currentSlide - 1);
+                            break;
+                    }
+
+                    /* D키, F키는 e.code 기반 — 한글/일본어 IME에서도 동작 */
+                    if (e.code === 'KeyF') {
+                        this.toggleFullscreen();
+                    } else if (e.code === 'KeyD') {
+                        this.toggleTheme();
+                    }
+                });
+            }
+
+            setupScrollTracking() {
+                window.addEventListener('scroll', () => {
+                    const scrollTop = window.scrollY;
+                    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+                    this.progressBar.style.width = progress + '%';
+                });
+            }
+
+            setupThemeToggle() {
+                const btn = document.getElementById('themeToggle');
+                if (btn) {
+                    btn.addEventListener('click', () => this.toggleTheme());
+                }
+            }
+
+            initTheme() {
+                const saved = localStorage.getItem('slide-theme');
+                if (saved) {
+                    document.documentElement.setAttribute('data-theme', saved);
+                    this.updateThemeIcon();
+                }
+            }
+
+            toggleTheme() {
+                const html = document.documentElement;
+                const current = html.getAttribute('data-theme');
+                const next = current === 'light' ? 'dark' : 'light';
+                html.setAttribute('data-theme', next);
+                localStorage.setItem('slide-theme', next);
+                this.updateThemeIcon();
+            }
+
+            updateThemeIcon() {
+                const btn = document.getElementById('themeToggle');
+                if (!btn) return;
+                const theme = document.documentElement.getAttribute('data-theme');
+                btn.textContent = theme === 'light' ? '\u2600' : '\u263E';
+            }
+
+            goToSlide(index) {
+                if (index >= 0 && index < this.slides.length) {
+                    this.slides[index].scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+
+            toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            }
+
+            updateNav(index) {
+                this.navDots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new SlidePresentation();
+        });
+    </script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "pgh-marketplace",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "ParkGeonhee의 Claude Code 플러그인 마켓플레이스",
   "owner": {
     "name": "ParkGeonhee"
@@ -9,8 +9,8 @@
   "plugins": [
     {
       "name": "PGH-PresenMaker",
-      "description": "순수 HTML/CSS/JS로 웹 프레젠테이션을 생성하는 플러그인. 외부 라이브러리 없이 단일 HTML 파일로 GPU 가속 슬라이드 전환, 키보드/터치 네비게이션, 풀스크린 모드를 지원합니다.",
-      "version": "1.1.1",
+      "description": "순수 HTML/CSS/JS로 웹 프레젠테이션을 생성하는 플러그인. 슬라이드 모드(좌우 전환)와 스크롤 모드(수직 scroll-snap, 14가지 템플릿)를 지원합니다. 외부 라이브러리 없이 단일 HTML 파일로 완성됩니다.",
+      "version": "1.2.0",
       "author": {
         "name": "ParkGeonhee"
       },
